@@ -1,0 +1,31 @@
+# Optional: täglicher Lauf über GitHub Actions (falls kein eigener Server).
+# Voraussetzung: dieses Projekt liegt in einem GitHub-Repository und die
+# SMTP-Daten sind als Repository-Secrets hinterlegt.
+name: Website-Tracker
+on:
+  schedule:
+    - cron: "0 6 * * *"   # täglich 06:00 UTC = 08:00 MESZ
+  workflow_dispatch: {}    # manueller Start möglich
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pyyaml
+      - run: python tracker.py run
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      # state.json und dashboard.html zurück ins Repository schreiben
+      - run: |
+          git config user.name "tracker-bot"
+          git config user.email "tracker@users.noreply.github.com"
+          git add state.json dashboard.html
+          git diff --cached --quiet || git commit -m "Tracker-Lauf $(date -u +%F)"
+          git push
