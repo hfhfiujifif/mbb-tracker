@@ -20,8 +20,7 @@
          font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: 15px; }
   header { border-top: 4px solid var(--red); border-bottom: 1px solid var(--line);
             padding: 26px 36px; display: flex; align-items: center; gap: 18px; }
-  .logo { background: #111; color: #fff; font-weight: 600; font-size: 20px;
-           padding: 12px 16px; letter-spacing: .02em; }
+  .logo { height: 56px; width: 56px; display: block; }
   header h1 { margin: 0; font-size: 19px; font-weight: 600; }
   header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
   main { max-width: 1220px; margin: 0 auto; padding: 28px 36px 56px; }
@@ -57,6 +56,13 @@
   .feld-label { color: var(--muted); }
   .feld-wert { text-align: right; font-weight: 500; }
   .feld-voll { color: var(--muted); }
+  .web { font-size: 12px; margin: 10px 0 0; padding: 6px 10px; }
+  .web-ok      { background: var(--ok-bg);   color: var(--ok); }
+  .web-alarm   { background: var(--over-bg); color: var(--over); font-weight: 500; }
+  .web-warn    { background: var(--due-bg);  color: var(--due); }
+  .web-neutral { background: var(--past-bg); color: var(--past); }
+  .refs { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+  .refs a { color: var(--ink); }
   .hinweis { color: var(--over); font-size: 12px; margin: 8px 0 0; }
   .card-meta { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px;
                 padding: 12px 0; margin-top: auto; }
@@ -74,7 +80,7 @@
   .badge-past { background: var(--past-bg); color: var(--past); }
   table { width: 100%; border-collapse: collapse; }
   td { padding: 13px 8px; border-bottom: 1px solid var(--line); font-size: 15px; }
-  .t-datum { width: 180px; color: var(--ink); }
+  .t-datum { width: 180px; }
   .t-status { width: 130px; text-align: right; }
   footer { color: var(--muted); font-size: 12px; margin-top: 30px; }
   @media (max-width: 640px) {
@@ -85,14 +91,15 @@
 </head>
 <body>
 <header>
-  <div class="logo">MBB</div>
+  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 20.07.2026 · Erinnerung ab 14 Tagen vor Fälligkeit</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 20.07.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
   </div>
 </header>
 <main>
   <div class="summary">
+    <div class="sum over"><div class="num">0</div><div class="lbl">Web-Abweichungen</div></div>
     <div class="sum over"><div class="num">0</div><div class="lbl">überfällig</div></div>
     <div class="sum due"><div class="num">0</div><div class="lbl">fällig</div></div>
     <div class="sum ok"><div class="num">16</div><div class="lbl">aktuell</div></div>
@@ -107,6 +114,8 @@
         </div>
         <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
         <div class="felder"><div class="feld"><span class="feld-label">Grundkapital</span><span class="feld-wert">5.436.169 €</span></div><div class="feld"><span class="feld-label">Stückzahl</span><span class="feld-wert">5.436.169 nennwertlose Inhaberaktien</span></div><div class="feld"><span class="feld-label">Anteil Gründer (Nesemeier / Freimuth)</span><span class="feld-wert">71 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/" target="_blank">MarketScreener (Aktionäre)</a> · <a href="https://www.bundesanzeiger.de" target="_blank">Bundesanzeiger (Stimmrechtsmitteilungen)</a></p>
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -122,6 +131,8 @@
         </div>
         <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
         <div class="felder"><div class="feld"><span class="feld-voll">Kennzahlentabelle (Angaben in T€, Margen bezogen auf Betriebsleistung)</span></div><div class="feld"><span class="feld-label">Streubesitz</span><span class="feld-wert">29 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/" target="_blank">MarketScreener (Free Float, andere Methodik)</a></p>
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -136,7 +147,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Berenberg – Gerhard Orgonas</span></div><div class="feld"><span class="feld-voll">ODDO BHF – Klaus Breitenbach</span></div><div class="feld"><span class="feld-voll">Quirin Bank – Ralf Marinoni</span></div><div class="feld"><span class="feld-voll">EQUI.TS – Thomas Schießle</span></div><div class="feld"><span class="feld-voll">Metzler – Dr. Victor Beyer</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Berenberg</span><span class="feld-wert">Gerhard Orgonas</span></div><div class="feld"><span class="feld-label">ODDO BHF</span><span class="feld-wert">Klaus Breitenbach</span></div><div class="feld"><span class="feld-label">Quirin Bank</span><span class="feld-wert">Ralf Marinoni</span></div><div class="feld"><span class="feld-label">EQUI.TS</span><span class="feld-wert">Thomas Schießle</span></div><div class="feld"><span class="feld-label">Metzler</span><span class="feld-wert">Dr. Victor Beyer</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -151,11 +164,13 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/ueber-uns/zahlenwerk.html" target="_blank">mbb.com/ueber-uns/zahlenwerk.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Aktienzahl</span><span class="feld-wert">5.436.169</span></div><div class="feld"><span class="feld-label">Geschäftsführende Direktoren</span><span class="feld-wert">Dr. Christof Nesemeier, Torben Teichler</span></div><div class="feld"><span class="feld-label">Tabelle 'Entwicklung seit 1995'</span><span class="feld-wert">Umsatz (adj.), EBITDA (adj.), Mitarbeiter</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Aktienzahl</span><span class="feld-wert">5.436.169</span></div><div class="feld"><span class="feld-label">Direktoren</span><span class="feld-wert">Dr. Christof Nesemeier, Torben Teichler</span></div><div class="feld"><span class="feld-label">Tabelle</span><span class="feld-wert">Umsatz (adj.), EBITDA (adj.), Mitarbeiter seit 1995</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>20.07.2026</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
           <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
         </div>
         <div class="card-fuss">Bestätigen: <code>zahlenwerk</code></div>
@@ -167,6 +182,8 @@
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">47,81 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -181,7 +198,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">44,26 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -196,7 +215,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">80,00 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -211,7 +232,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">56,11 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -226,7 +249,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">93,01 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -241,7 +266,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">100 %</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
@@ -256,7 +283,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte</span></div><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">204 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">773</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2012</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">204 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">773</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2012</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -271,7 +300,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">704 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">2.243</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2019</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -286,7 +317,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">116 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">346</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2008</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -301,7 +334,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">65 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">380</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2003</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -316,7 +351,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">61 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">342</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2006</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -331,7 +368,9 @@
           <span class="badge badge-ok">aktuell</span>
         </div>
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
-        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">21 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">124</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2010</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
@@ -365,9 +404,11 @@
 
   <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
     nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
-    letzten Bestätigung. Erledigte Prüfungen bestätigen: Datum in
-    <code>state.json</code> auf heute setzen oder
-    <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
+    letzten Bestätigung. Der Website-Abgleich prüft, ob die hinterlegten
+    Prüfwerte noch auf der jeweiligen Seite stehen; Vergleichsquellen sind
+    Links für den manuellen Abgleich (externe Portale rechnen teils anders).
+    Erledigte Prüfungen bestätigen: Datum in <code>state.json</code> auf heute
+    setzen oder <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
 </main>
 </body>
 </html>
