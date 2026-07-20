@@ -2,21 +2,32 @@
 # MBB Website-Tracker – Konfiguration
 # =====================================================================
 # Diese Datei ist die einzige Stelle, an der du laufend Änderungen
-# vornimmst. Neue Prüfpunkte: einfach einen Block unter "checks"
-# kopieren und anpassen. Neue Termine: unter "kalender" ergänzen.
+# vornimmst. Neue Prüfpunkte: einen Block unter "checks" kopieren.
+# Neue Termine: unter "kalender" ergänzen.
 #
-# Intervalle: "quartalsweise" (90 Tage) oder "jaehrlich" (365 Tage)
+# Intervalle: "quartalsweise" (fällig zum nächsten Finanzkalender-
+# Termin) oder "jaehrlich" (365 Tage)
+#
+# pruefwerte: Textstücke, die auf der Seite vorhanden sein MÜSSEN.
+#   Der Crawler ruft die Seite ab und schlägt Alarm, wenn ein Wert
+#   fehlt (= jemand hat die Seite geändert oder sie ist defekt).
+# referenzen: Links zu externen Quellen für den MANUELLEN Vergleich.
+#   Kein automatischer Abgleich – externe Portale rechnen anders
+#   (z. B. Streubesitz) und verbieten automatisches Auslesen.
 # ---------------------------------------------------------------------
 
 email:
   empfaenger: "office@example.com"        # E-Mail der Office-Managerin – ANPASSEN
   absender: "tracker@example.com"         # Absenderadresse – ANPASSEN
   betreff_prefix: "[Website-Check]"
-  # SMTP-Zugangsdaten werden NICHT hier hinterlegt, sondern als
-  # Umgebungsvariablen gesetzt: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+  # SMTP-Zugangsdaten als Umgebungsvariablen: SMTP_HOST, SMTP_PORT,
+  # SMTP_USER, SMTP_PASS
 
 erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
+
+website_abgleich:
+  aktiv: true           # false = Crawler komplett abschalten (Rückbau-Schalter)
 
 checks:
   # ---------- Die Aktie (quartalsweise) ----------
@@ -28,6 +39,14 @@ checks:
       - "Grundkapital: 5.436.169 €"
       - "Stückzahl: 5.436.169 nennwertlose Inhaberaktien"
       - "Anteil Gründer (Nesemeier / Freimuth): 71 %"
+    pruefwerte:
+      - "5.436.169"
+      - "71 %"
+    referenzen:
+      - titel: "MarketScreener (Aktionäre)"
+        url: "https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/"
+      - titel: "Bundesanzeiger (Stimmrechtsmitteilungen)"
+        url: "https://www.bundesanzeiger.de"
 
   - id: aktie-zahlen
     titel: "MBB in Zahlen / Streubesitz"
@@ -36,17 +55,29 @@ checks:
     felder:
       - "Kennzahlentabelle (Angaben in T€, Margen bezogen auf Betriebsleistung)"
       - "Streubesitz: 29 %"
+    pruefwerte:
+      - "Streubesitz"
+      - "29 %"
+    referenzen:
+      - titel: "MarketScreener (Free Float, andere Methodik)"
+        url: "https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/"
 
   - id: aktie-analysten
     titel: "Analysten-Liste"
     url: "https://www.mbb.com/ir/aktie.html"
     intervall: quartalsweise
     felder:
-      - "Berenberg – Gerhard Orgonas"
-      - "ODDO BHF – Klaus Breitenbach"
-      - "Quirin Bank – Ralf Marinoni"
-      - "EQUI.TS – Thomas Schießle"
-      - "Metzler – Dr. Victor Beyer"
+      - "Berenberg: Gerhard Orgonas"
+      - "ODDO BHF: Klaus Breitenbach"
+      - "Quirin Bank: Ralf Marinoni"
+      - "EQUI.TS: Thomas Schießle"
+      - "Metzler: Dr. Victor Beyer"
+    pruefwerte:
+      - "Orgonas"
+      - "Breitenbach"
+      - "Marinoni"
+      - "Schießle"
+      - "Beyer"
 
   # ---------- Zahlenwerk (quartalsweise) ----------
   - id: zahlenwerk
@@ -55,8 +86,12 @@ checks:
     intervall: quartalsweise
     felder:
       - "Aktienzahl: 5.436.169"
-      - "Geschäftsführende Direktoren: Dr. Christof Nesemeier, Torben Teichler"
-      - "Tabelle 'Entwicklung seit 1995': Umsatz (adj.), EBITDA (adj.), Mitarbeiter"
+      - "Direktoren: Dr. Christof Nesemeier, Torben Teichler"
+      - "Tabelle: Umsatz (adj.), EBITDA (adj.), Mitarbeiter seit 1995"
+    pruefwerte:
+      - "5.436.169"
+      - "Nesemeier"
+      - "Torben Teichler"
 
   # ---------- Töchter: MBB-Anteil (quartalsweise) ----------
   - id: aumann-anteil
@@ -65,92 +100,137 @@ checks:
     intervall: quartalsweise
     felder:
       - "MBB Anteil: 47,81 %"
+    pruefwerte:
+      - "47,81 %"
 
   - id: vorwerk-anteil
     titel: "Friedrich Vorwerk – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: quartalsweise
     felder:
-      - "MBB Anteil"
+      - "MBB Anteil: 44,26 %"
+    pruefwerte:
+      - "44,26 %"
 
   - id: dts-anteil
     titel: "DTS IT – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: quartalsweise
     felder:
-      - "MBB Anteil"
+      - "MBB Anteil: 80,00 %"
+    pruefwerte:
+      - "80,00 %"
 
   - id: delignit-anteil
     titel: "Delignit – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: quartalsweise
     felder:
-      - "MBB Anteil"
+      - "MBB Anteil: 56,11 %"
+    pruefwerte:
+      - "56,11 %"
 
   - id: hanke-anteil
     titel: "Hanke Tissue – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: quartalsweise
     felder:
-      - "MBB Anteil"
+      - "MBB Anteil: 93,01 %"
+    pruefwerte:
+      - "93,01 %"
 
   - id: ct-anteil
     titel: "CT Formpolster – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: quartalsweise
     felder:
-      - "MBB Anteil"
+      - "MBB Anteil: 100 %"
+    pruefwerte:
+      - "100 %"
 
-  # ---------- Töchter: Stammdaten (jährlich) ----------
+  # ---------- Töchter: Stammdaten (jährlich, Stand 31.12.2025) ----------
   - id: aumann-stammdaten
     titel: "Aumann – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/aumann.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte"
       - "Umsatz 2025: 204 Mio. €"
       - "Mitarbeiter 2025: 773"
       - "MBB seit: 2012"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "204 Mio. €"
+      - "773"
 
   - id: vorwerk-stammdaten
     titel: "Friedrich Vorwerk – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit"
+      - "Umsatz 2025: 704 Mio. €"
+      - "Mitarbeiter 2025: 2.243"
+      - "MBB seit: 2019"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "704 Mio. €"
+      - "2.243"
 
   - id: dts-stammdaten
     titel: "DTS IT – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit"
+      - "Umsatz 2025: 116 Mio. €"
+      - "Mitarbeiter 2025: 346"
+      - "MBB seit: 2008"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "116 Mio. €"
+      - "346"
 
   - id: delignit-stammdaten
     titel: "Delignit – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit"
+      - "Umsatz 2025: 65 Mio. €"
+      - "Mitarbeiter 2025: 380"
+      - "MBB seit: 2003"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "65 Mio. €"
+      - "380"
 
   - id: hanke-stammdaten
     titel: "Hanke Tissue – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit"
+      - "Umsatz 2025: 61 Mio. €"
+      - "Mitarbeiter 2025: 342"
+      - "MBB seit: 2006"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "61 Mio. €"
+      - "342"
 
   - id: ct-stammdaten
     titel: "CT Formpolster – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: jaehrlich
     felder:
-      - "Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit"
+      - "Umsatz 2025: 21 Mio. €"
+      - "Mitarbeiter 2025: 124"
+      - "MBB seit: 2010"
+      - "Dazu: Tätigkeit, Märkte, Standorte prüfen"
+    pruefwerte:
+      - "21 Mio. €"
+      - "124"
 
 # ---------------------------------------------------------------------
-# Finanzkalender-Termine (Quelle: https://www.mbb.com/ir/finanzkalender.html)
-# Vor jedem Termin wird mit "vorlauf_tage" Vorlauf erinnert, den
-# Kalender auf der Website und die zugehörigen Inhalte zu prüfen.
+# Finanzkalender (Quelle: https://www.mbb.com/ir/finanzkalender.html)
+# Quartalsweise Prüfpunkte werden zum jeweils nächsten Termin fällig.
+# Termine für 2027 nachtragen, sobald MBB sie veröffentlicht!
 # Format: JJJJ-MM-TT
 # ---------------------------------------------------------------------
 kalender:
