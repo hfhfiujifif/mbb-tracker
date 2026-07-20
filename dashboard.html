@@ -5,262 +5,369 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MBB Website-Tracker – Statusübersicht</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1a2332; --muted: #5b6675; --line: #d9dee5; --bg: #f5f6f8;
-    --panel: #ffffff; --ok: #1d7a4f; --ok-bg: #e3f2ea;
-    --due: #9a6a00; --due-bg: #fdf0d5; --over: #a3232b; --over-bg: #fbe4e5;
-    --past: #5b6675; --past-bg: #e8eaee; --accent: #10366f;
+    --ink: #1a1a1a; --muted: #6b6b6b; --line: #dcdcdc; --panel: #f0f0f0;
+    --red: #e2001a;
+    --ok: #1d7a4f; --ok-bg: #e7f2ec;
+    --due: #96650a; --due-bg: #fbf1dc;
+    --over: #b3121b; --over-bg: #fbe6e7;
+    --past: #6b6b6b; --past-bg: #ececec;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink);
+  body { margin: 0; background: #fff; color: var(--ink);
          font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: 15px; }
-  header { background: var(--panel); border-bottom: 3px solid var(--accent);
-            padding: 24px 32px; }
-  header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
-  header p { margin: 0; color: var(--muted); font-size: 13px; }
-  main { max-width: 1180px; margin: 0 auto; padding: 24px 32px 48px; }
-  .summary { display: flex; gap: 12px; margin: 0 0 24px; flex-wrap: wrap; }
-  .card { background: var(--panel); border: 1px solid var(--line);
-           border-radius: 6px; padding: 12px 18px; min-width: 130px; }
-  .card .num { font-size: 26px; font-weight: 600; }
-  .card .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase;
-                letter-spacing: .04em; }
-  .card.over .num { color: var(--over); }
-  .card.due .num { color: var(--due); }
-  .card.ok .num { color: var(--ok); }
-  h2 { font-size: 15px; font-weight: 600; margin: 28px 0 10px;
-        text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-  table { width: 100%; border-collapse: collapse; background: var(--panel);
-           border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  th { text-align: left; font-size: 12px; text-transform: uppercase;
-        letter-spacing: .04em; color: var(--muted); font-weight: 500;
-        padding: 10px 12px; border-bottom: 1px solid var(--line);
-        background: #fafbfc; }
-  td { padding: 12px; border-bottom: 1px solid var(--line);
-        vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  td.felder { color: var(--muted); font-size: 13px; max-width: 340px; }
-  a { color: var(--accent); text-decoration: none; font-size: 13px; }
-  a:hover { text-decoration: underline; }
-  code { font-family: "IBM Plex Mono", monospace; font-size: 12px;
-          background: var(--bg); padding: 2px 6px; border-radius: 4px; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500; white-space: nowrap; }
-  .badge-ok  { background: var(--ok-bg);  color: var(--ok); }
-  .badge-due { background: var(--due-bg); color: var(--due); }
-  .badge-over{ background: var(--over-bg);color: var(--over); }
-  .badge-past{ background: var(--past-bg);color: var(--past); }
-  footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
+  header { border-top: 4px solid var(--red); border-bottom: 1px solid var(--line);
+            padding: 26px 36px; display: flex; align-items: center; gap: 18px; }
+  .logo { background: #111; color: #fff; font-weight: 600; font-size: 20px;
+           padding: 12px 16px; letter-spacing: .02em; }
+  header h1 { margin: 0; font-size: 19px; font-weight: 600; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 1220px; margin: 0 auto; padding: 28px 36px 56px; }
+  .summary { display: flex; gap: 1px; background: var(--line);
+              border: 1px solid var(--line); margin-bottom: 34px; }
+  .sum { background: #fff; flex: 1; padding: 14px 18px; }
+  .sum .num { font-size: 28px; font-weight: 600; }
+  .sum .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase;
+               letter-spacing: .08em; }
+  .sum.over .num { color: var(--over); }
+  .sum.due .num { color: var(--due); }
+  .sum.ok .num { color: var(--ok); }
+  h2 { font-size: 13px; font-weight: 600; margin: 36px 0 14px;
+        text-transform: uppercase; letter-spacing: .12em; }
+  h2::after { content: ""; display: block; height: 1px; background: var(--line);
+               margin-top: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+           gap: 18px; }
+  .card { border: 1px solid var(--line); border-top: 3px solid var(--line);
+           padding: 16px 18px 0; display: flex; flex-direction: column; }
+  .card.status-over { border-top-color: var(--over); }
+  .card.status-due  { border-top-color: var(--due); }
+  .card.status-ok   { border-top-color: #b9c4bd; }
+  .card-kopf { display: flex; justify-content: space-between; gap: 10px;
+                align-items: baseline; }
+  .card h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .card-url { font-size: 12px; color: var(--muted); text-decoration: none;
+               margin: 3px 0 12px; display: block; }
+  .card-url:hover { color: var(--red); }
+  .felder { border-top: 1px solid var(--line); }
+  .feld { display: flex; justify-content: space-between; gap: 14px;
+           padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .feld-label { color: var(--muted); }
+  .feld-wert { text-align: right; font-weight: 500; }
+  .feld-voll { color: var(--muted); }
+  .hinweis { color: var(--over); font-size: 12px; margin: 8px 0 0; }
+  .card-meta { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px;
+                padding: 12px 0; margin-top: auto; }
+  .meta-label { display: block; font-size: 10px; text-transform: uppercase;
+                 letter-spacing: .08em; color: var(--muted); margin-bottom: 1px; }
+  .card-fuss { border-top: 1px solid var(--line); margin: 0 -18px;
+                padding: 8px 18px; background: #fafafa; font-size: 12px;
+                color: var(--muted); }
+  code { font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+  .badge { padding: 3px 10px; font-size: 11px; font-weight: 600;
+            letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+  .badge-ok   { background: var(--ok-bg);   color: var(--ok); }
+  .badge-due  { background: var(--due-bg);  color: var(--due); }
+  .badge-over { background: var(--over-bg); color: var(--over); }
+  .badge-past { background: var(--past-bg); color: var(--past); }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 13px 8px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .t-datum { width: 180px; color: var(--ink); }
+  .t-status { width: 130px; text-align: right; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 30px; }
+  @media (max-width: 640px) {
+    header, main { padding-left: 18px; padding-right: 18px; }
+    .summary { flex-direction: column; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>MBB Website-Tracker</h1>
-  <p>Statusübersicht der zu pflegenden Website-Inhalte · Stand: 20.07.2026 · Erinnerungsvorlauf: 14 Tage</p>
+  <div class="logo">MBB</div>
+  <div>
+    <h1>Website-Tracker</h1>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 20.07.2026 · Erinnerung ab 14 Tagen vor Fälligkeit</p>
+  </div>
 </header>
 <main>
   <div class="summary">
-    <div class="card over"><div class="num">0</div><div class="lbl">überfällig</div></div>
-    <div class="card due"><div class="num">0</div><div class="lbl">fällig</div></div>
-    <div class="card ok"><div class="num">16</div><div class="lbl">aktuell</div></div>
+    <div class="sum over"><div class="num">0</div><div class="lbl">überfällig</div></div>
+    <div class="sum due"><div class="num">0</div><div class="lbl">fällig</div></div>
+    <div class="sum ok"><div class="num">16</div><div class="lbl">aktuell</div></div>
   </div>
 
   <h2>Prüfpunkte</h2>
-  <table>
-    <thead><tr>
-      <th>Bereich / Seite</th><th>Zu prüfende Angaben</th><th>Intervall</th>
-      <th>Zuletzt bestätigt</th><th>Fällig am</th><th>Status</th><th>Bestätigen mit</th>
-    </tr></thead>
-    <tbody>
-        <tr>
-          <td><strong>Aktionärsstruktur</strong><br>
-              <a href="https://www.mbb.com/ir/aktie.html" target="_blank">/ir/aktie.html</a></td>
-          <td class="felder">Grundkapital: 5.436.169 €<br>Stückzahl: 5.436.169 nennwertlose Inhaberaktien<br>Anteil Gründer (Nesemeier / Freimuth): 71 %</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm aktie-aktionaersstruktur</code></td>
-        </tr>
-        <tr>
-          <td><strong>MBB in Zahlen / Streubesitz</strong><br>
-              <a href="https://www.mbb.com/ir/aktie.html" target="_blank">/ir/aktie.html</a></td>
-          <td class="felder">Kennzahlentabelle (Angaben in T€, Margen bezogen auf Betriebsleistung)<br>Streubesitz: 29 %</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm aktie-zahlen</code></td>
-        </tr>
-        <tr>
-          <td><strong>Analysten-Liste</strong><br>
-              <a href="https://www.mbb.com/ir/aktie.html" target="_blank">/ir/aktie.html</a></td>
-          <td class="felder">Berenberg – Gerhard Orgonas<br>ODDO BHF – Klaus Breitenbach<br>Quirin Bank – Ralf Marinoni<br>EQUI.TS – Thomas Schießle<br>Metzler – Dr. Victor Beyer</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm aktie-analysten</code></td>
-        </tr>
-        <tr>
-          <td><strong>Aumann – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">/unsere-toechter/aumann.html</a></td>
-          <td class="felder">MBB Anteil: 47,81 %</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm aumann-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>Friedrich Vorwerk – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">/unsere-toechter/friedrich-vorwerk.html</a></td>
-          <td class="felder">MBB Anteil</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm vorwerk-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>DTS IT – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">/unsere-toechter/dts-it.html</a></td>
-          <td class="felder">MBB Anteil</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm dts-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>Delignit – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">/unsere-toechter/delignit.html</a></td>
-          <td class="felder">MBB Anteil</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm delignit-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>Hanke Tissue – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">/unsere-toechter/hanke-tissue.html</a></td>
-          <td class="felder">MBB Anteil</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm hanke-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>CT Formpolster – MBB Anteil</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">/unsere-toechter/ct-formpolster.html</a></td>
-          <td class="felder">MBB Anteil</td>
-          <td>quartalsweise</td>
-          <td>17.07.2026</td>
-          <td>15.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm ct-anteil</code></td>
-        </tr>
-        <tr>
-          <td><strong>Zahlenwerk / Eckdaten & Entwicklungstabelle</strong><br>
-              <a href="https://www.mbb.com/ueber-uns/zahlenwerk.html" target="_blank">/ueber-uns/zahlenwerk.html</a></td>
-          <td class="felder">Aktienzahl: 5.436.169<br>Geschäftsführende Direktoren: Dr. Christof Nesemeier, Torben Teichler<br>Tabelle 'Entwicklung seit 1995': Umsatz (adj.), EBITDA (adj.), Mitarbeiter</td>
-          <td>quartalsweise</td>
-          <td>20.07.2026</td>
-          <td>18.10.2026</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm zahlenwerk</code></td>
-        </tr>
-        <tr>
-          <td><strong>Aumann – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">/unsere-toechter/aumann.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte<br>Umsatz 2025: 204 Mio. €<br>Mitarbeiter 2025: 773<br>MBB seit: 2012</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm aumann-stammdaten</code></td>
-        </tr>
-        <tr>
-          <td><strong>Friedrich Vorwerk – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">/unsere-toechter/friedrich-vorwerk.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm vorwerk-stammdaten</code></td>
-        </tr>
-        <tr>
-          <td><strong>DTS IT – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">/unsere-toechter/dts-it.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm dts-stammdaten</code></td>
-        </tr>
-        <tr>
-          <td><strong>Delignit – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">/unsere-toechter/delignit.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm delignit-stammdaten</code></td>
-        </tr>
-        <tr>
-          <td><strong>Hanke Tissue – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">/unsere-toechter/hanke-tissue.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm hanke-stammdaten</code></td>
-        </tr>
-        <tr>
-          <td><strong>CT Formpolster – Stammdaten</strong><br>
-              <a href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">/unsere-toechter/ct-formpolster.html</a></td>
-          <td class="felder">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</td>
-          <td>jaehrlich</td>
-          <td>17.07.2026</td>
-          <td>17.07.2027</td>
-          <td><span class="badge badge-ok">aktuell</span></td>
-          <td><code>confirm ct-stammdaten</code></td>
-        </tr>
-    </tbody>
-  </table>
+  <div class="grid">
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Aktionärsstruktur</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Grundkapital</span><span class="feld-wert">5.436.169 €</span></div><div class="feld"><span class="feld-label">Stückzahl</span><span class="feld-wert">5.436.169 nennwertlose Inhaberaktien</span></div><div class="feld"><span class="feld-label">Anteil Gründer (Nesemeier / Freimuth)</span><span class="feld-wert">71 %</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aktie-aktionaersstruktur</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>MBB in Zahlen / Streubesitz</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Kennzahlentabelle (Angaben in T€, Margen bezogen auf Betriebsleistung)</span></div><div class="feld"><span class="feld-label">Streubesitz</span><span class="feld-wert">29 %</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aktie-zahlen</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Analysten-Liste</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/ir/aktie.html" target="_blank">mbb.com/ir/aktie.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Berenberg – Gerhard Orgonas</span></div><div class="feld"><span class="feld-voll">ODDO BHF – Klaus Breitenbach</span></div><div class="feld"><span class="feld-voll">Quirin Bank – Ralf Marinoni</span></div><div class="feld"><span class="feld-voll">EQUI.TS – Thomas Schießle</span></div><div class="feld"><span class="feld-voll">Metzler – Dr. Victor Beyer</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aktie-analysten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Zahlenwerk / Eckdaten & Entwicklungstabelle</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/ueber-uns/zahlenwerk.html" target="_blank">mbb.com/ueber-uns/zahlenwerk.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Aktienzahl</span><span class="feld-wert">5.436.169</span></div><div class="feld"><span class="feld-label">Geschäftsführende Direktoren</span><span class="feld-wert">Dr. Christof Nesemeier, Torben Teichler</span></div><div class="feld"><span class="feld-label">Tabelle 'Entwicklung seit 1995'</span><span class="feld-wert">Umsatz (adj.), EBITDA (adj.), Mitarbeiter</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>zahlenwerk</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Aumann – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">47,81 %</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aumann-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Friedrich Vorwerk – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>vorwerk-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>DTS IT – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>dts-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Delignit – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>delignit-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Hanke Tissue – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>hanke-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>CT Formpolster – MBB Anteil</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">MBB Anteil</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>ct-anteil</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Aumann – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte</span></div><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">204 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">773</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2012</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aumann-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Friedrich Vorwerk – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>vorwerk-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>DTS IT – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>dts-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Delignit – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>delignit-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Hanke Tissue – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>hanke-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>CT Formpolster – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
+        <div class="felder"><div class="feld"><span class="feld-voll">Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, MBB seit</span></div></div>
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jaehrlich · jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>ct-stammdaten</code></div>
+      </article>
+  </div>
 
   <h2>Finanzkalender</h2>
   <table>
-    <thead><tr><th>Datum</th><th>Termin</th><th>Status</th></tr></thead>
     <tbody>
         <tr>
-          <td>13.08.2026</td>
+          <td class="t-datum">13.08.2026</td>
           <td>Halbjahresfinanzbericht 2026</td>
-          <td><span class="badge badge-ok">geplant</span></td>
+          <td class="t-status"><span class="badge badge-ok">geplant</span></td>
         </tr>
         <tr>
-          <td>12.11.2026</td>
+          <td class="t-datum">12.11.2026</td>
           <td>Quartalsmitteilung Q3 2026</td>
-          <td><span class="badge badge-ok">geplant</span></td>
+          <td class="t-status"><span class="badge badge-ok">geplant</span></td>
         </tr>
         <tr>
-          <td>31.12.2026</td>
+          <td class="t-datum">31.12.2026</td>
           <td>Geschäftsjahresende</td>
-          <td><span class="badge badge-ok">geplant</span></td>
+          <td class="t-status"><span class="badge badge-ok">geplant</span></td>
         </tr>
     </tbody>
   </table>
 
-  <footer>Erzeugt durch tracker.py · Erledigte Prüfungen bestätigen mit:
-    <code>python tracker.py confirm &lt;id&gt;</code></footer>
+  <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
+    nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
+    letzten Bestätigung. Erledigte Prüfungen bestätigen: Datum in
+    <code>state.json</code> auf heute setzen oder
+    <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
 </main>
 </body>
 </html>
