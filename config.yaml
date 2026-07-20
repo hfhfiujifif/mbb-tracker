@@ -30,7 +30,10 @@ erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
 
 website_abgleich:
-  aktiv: true           # false = Crawler komplett abschalten (Rückbau-Schalter)
+  aktiv: true           # false = mbb.com-Crawler abschalten (Rückbau-Schalter)
+
+extern_abgleich:
+  aktiv: true           # false = externen Abgleich (MarketScreener) abschalten
 
 checks:
   # ---------- Die Aktie (quartalsweise) ----------
@@ -105,6 +108,14 @@ checks:
       - "MBB Anteil: 47,81 %"
     pruefwerte:
       - "47,81 %"
+    extern:
+      url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
+      suchbegriff: "MBB"
+      erwartet: 47.81
+      toleranz: 0.5
+    referenzen:
+      - titel: "MarketScreener (Aumann-Aktionäre)"
+        url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
 
   - id: vorwerk-anteil
     titel: "Friedrich Vorwerk – MBB Anteil"
@@ -114,6 +125,14 @@ checks:
       - "MBB Anteil: 44,26 %"
     pruefwerte:
       - "44,26 %"
+    extern:
+      url: "https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/"
+      suchbegriff: "MBB"
+      erwartet: 44.26
+      toleranz: 0.5
+    referenzen:
+      - titel: "MarketScreener (Vorwerk-Aktionäre)"
+        url: "https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/"
 
   - id: dts-anteil
     titel: "DTS IT – MBB Anteil"
@@ -132,6 +151,14 @@ checks:
       - "MBB Anteil: 56,11 %"
     pruefwerte:
       - "56,11 %"
+    extern:
+      url: "https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/"
+      suchbegriff: "MBB"
+      erwartet: 56.11
+      toleranz: 0.5
+    referenzen:
+      - titel: "MarketScreener (Delignit)"
+        url: "https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/"
 
   - id: hanke-anteil
     titel: "Hanke Tissue – MBB Anteil"
