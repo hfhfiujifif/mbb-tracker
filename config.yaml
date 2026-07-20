@@ -99,6 +99,36 @@ checks:
       - "Nesemeier"
       - "Torben Teichler"
 
+  # ---------- Unser Ursprung: Timeline (quartalsweise) ----------
+  - id: ursprung-timeline
+    titel: "Unser Ursprung – Geschichte der MBB (Timeline)"
+    url: "https://www.mbb.com/ueber-uns/unser-ursprung.html"
+    intervall: quartalsweise
+    felder:
+      - "Neuester Eintrag 2026: Dividende 1,21 €/Aktie, Rückkauf 25 Mio. €, 20 Jahre Börse"
+      - "Prüfen: Fehlen neue Ereignisse des laufenden Jahres?"
+    pruefwerte:
+      - "Geschichte der MBB"
+      - "1,21 €/Aktie"
+
+  # ---------- Standorte (quartalsweise) ----------
+  - id: standorte
+    titel: "Standorte (alle Gesellschaften)"
+    url: "https://www.mbb.com/ueber-uns/standorte.html"
+    intervall: quartalsweise
+    felder:
+      - "MBB SE: Kurfürstendamm 188, 10707 Berlin"
+      - "Rund 50 Standorte: DE, PL, GR, NL, China, USA"
+      - "Prüfen: Zu-/Abgänge nach Übernahmen oder Umzügen"
+    pruefwerte:
+      - "Kurfürstendamm 188"
+      - "Dieselstraße 6"
+      - "Harburger Straße 19"
+      - "Schrewestraße 2"
+      - "Königswinkel 2 - 6"
+      - "ul. Fabryczna 1"
+      - "Börstelstraße 113"
+
   # ---------- Töchter: MBB-Anteil (quartalsweise) ----------
   - id: aumann-anteil
     titel: "Aumann – MBB Anteil"
