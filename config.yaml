@@ -17,8 +17,11 @@
 # ---------------------------------------------------------------------
 
 email:
-  empfaenger: "office@example.com"        # E-Mail der Office-Managerin – ANPASSEN
-  absender: "tracker@example.com"         # Absenderadresse – ANPASSEN
+  empfaenger:                             # ein oder mehrere Empfänger
+    - "mak@mbb.com"
+    - "peb@mbb.com"
+    - "tte@mbb.com"
+  absender: "office@mbb.com"
   betreff_prefix: "[Website-Check]"
   # SMTP-Zugangsdaten als Umgebungsvariablen: SMTP_HOST, SMTP_PORT,
   # SMTP_USER, SMTP_PASS
