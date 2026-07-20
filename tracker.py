@@ -429,8 +429,8 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
         if hat_alarm(c):
             cls = "over"
         hinweis = (f'<p class="hinweis">{c["hinweis"]}</p>' if c["hinweis"] else "")
-        kopplung = ("Finanzkalender" if c["intervall"] == "quartalsweise"
-                    else "jährlich")
+        rhythmus = ("quartalsweise · Finanzkalender"
+                    if c["intervall"] == "quartalsweise" else "jährlich")
         cards += f"""
       <article class="card status-{cls}">
         <div class="card-kopf">
@@ -444,7 +444,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
         {render_referenzen(c.get('referenzen'))}
         {hinweis}
         <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>{c['intervall']} · {kopplung}</div>
+          <div><span class="meta-label">Rhythmus</span>{rhythmus}</div>
           <div><span class="meta-label">Zuletzt bestätigt</span>{fmt(date.fromisoformat(c['zuletzt']))}</div>
           <div><span class="meta-label">Fällig am</span><strong>{fmt(c['faellig_am'])}</strong></div>
         </div>
