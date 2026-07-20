@@ -12,6 +12,12 @@ Kommandos:
     python tracker.py list             Alle Prüfpunkte mit Status im Terminal
     python tracker.py dashboard        Nur das Dashboard neu erzeugen
 
+Fälligkeitslogik:
+    quartalsweise  -> fällig zum nächsten Finanzkalender-Termin nach der
+                      letzten Bestätigung (Fallback: +90 Tage, wenn kein
+                      Termin mehr im Kalender steht)
+    jaehrlich      -> fällig 365 Tage nach der letzten Bestätigung
+
 Abhängigkeit: pyyaml  (pip install pyyaml)
 SMTP-Zugangsdaten als Umgebungsvariablen: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
 Ohne SMTP-Variablen werden Erinnerungen nur ins Terminal geschrieben.
@@ -21,7 +27,7 @@ import json
 import os
 import smtplib
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from email.mime.text import MIMEText
 from pathlib import Path
 
@@ -31,8 +37,10 @@ BASE = Path(__file__).parent
 CONFIG_FILE = BASE / "config.yaml"
 STATE_FILE = BASE / "state.json"
 DASHBOARD_FILE = BASE / "dashboard.html"
+INDEX_FILE = BASE / "index.html"   # Kopie, damit die Pages-Startseite das Dashboard zeigt
 
-INTERVALL_TAGE = {"quartalsweise": 90, "jaehrlich": 365}
+JAEHRLICH_TAGE = 365
+QUARTAL_FALLBACK_TAGE = 90
 
 
 # ---------------------------------------------------------------- Daten
@@ -66,18 +74,40 @@ def ensure_state(config, state):
     return state
 
 
+def kalender_daten(config):
+    """Sortierte Terminliste aus dem Finanzkalender."""
+    daten = []
+    for k in config.get("kalender", []):
+        d = k["datum"]
+        if isinstance(d, str):
+            d = date.fromisoformat(d)
+        daten.append(d)
+    return sorted(daten)
+
+
 # ---------------------------------------------------------------- Statuslogik
 
-def status_of(check, state, vorlauf):
-    """Liefert (status, faellig_am, tage_bis)."""
+def faelligkeit(check, state, termine):
+    """Liefert (faellig_am, hinweis). Quartalsweise Punkte hängen am
+    Finanzkalender: fällig zum nächsten Termin nach der letzten Bestätigung."""
     zuletzt = date.fromisoformat(state[check["id"]]["zuletzt_bestaetigt"])
-    faellig = zuletzt + timedelta(days=INTERVALL_TAGE[check["intervall"]])
+    if check["intervall"] == "quartalsweise":
+        for t in termine:
+            if t > zuletzt:
+                return t, None
+        return (zuletzt + timedelta(days=QUARTAL_FALLBACK_TAGE),
+                "kein Termin mehr im Kalender – bitte Finanzkalender in config.yaml ergänzen")
+    return zuletzt + timedelta(days=JAEHRLICH_TAGE), None
+
+
+def status_of(check, state, vorlauf, termine):
+    faellig, hinweis = faelligkeit(check, state, termine)
     tage = (faellig - date.today()).days
     if tage < 0:
-        return "überfällig", faellig, tage
+        return "überfällig", faellig, tage, hinweis
     if tage <= vorlauf:
-        return "fällig", faellig, tage
-    return "aktuell", faellig, tage
+        return "fällig", faellig, tage, hinweis
+    return "aktuell", faellig, tage, hinweis
 
 
 def kalender_status(eintrag, vorlauf):
@@ -94,10 +124,12 @@ def kalender_status(eintrag, vorlauf):
 
 def collect(config, state):
     vorlauf = config.get("erinnerung", {}).get("vorlauf_tage", 14)
+    termine_daten = kalender_daten(config)
     checks = []
     for c in config["checks"]:
-        s, faellig, tage = status_of(c, state, vorlauf)
+        s, faellig, tage, hinweis = status_of(c, state, vorlauf, termine_daten)
         checks.append({**c, "status": s, "faellig_am": faellig, "tage": tage,
+                       "hinweis": hinweis,
                        "zuletzt": state[c["id"]]["zuletzt_bestaetigt"]})
     termine = []
     for k in config.get("kalender", []):
@@ -126,7 +158,7 @@ def build_mail_text(due_checks, due_termine):
                          f"(in {t['tage']} Tagen)")
         lines.append("  Bitte prüfen, ob Kalender und zugehörige Inhalte auf der "
                      "Website aktuell sind: https://www.mbb.com/ir/finanzkalender.html")
-    lines += ["", "Die aktuelle Übersicht steht im Dashboard (dashboard.html).", ""]
+    lines += ["", "Die aktuelle Übersicht steht im Dashboard.", ""]
     return "\n".join(lines)
 
 
@@ -156,13 +188,26 @@ def send_mail(config, text, anzahl):
 # ---------------------------------------------------------------- Dashboard
 
 BADGE = {
-    "aktuell":    ("badge-ok", "aktuell"),
-    "fällig":     ("badge-due", "fällig"),
-    "überfällig": ("badge-over", "überfällig"),
-    "geplant":    ("badge-ok", "geplant"),
-    "steht an":   ("badge-due", "steht an"),
-    "vorbei":     ("badge-past", "vorbei"),
+    "aktuell":    ("ok",   "aktuell"),
+    "fällig":     ("due",  "fällig"),
+    "überfällig": ("over", "überfällig"),
+    "geplant":    ("ok",   "geplant"),
+    "steht an":   ("due",  "steht an"),
+    "vorbei":     ("past", "vorbei"),
 }
+
+
+def render_felder(felder):
+    """'Label: Wert' wird zu zweispaltigen Zeilen, sonst volle Breite."""
+    rows = ""
+    for f in felder:
+        if ": " in f:
+            label, wert = f.split(": ", 1)
+            rows += (f'<div class="feld"><span class="feld-label">{label}</span>'
+                     f'<span class="feld-wert">{wert}</span></div>')
+        else:
+            rows += f'<div class="feld"><span class="feld-voll">{f}</span></div>'
+    return rows
 
 
 def render_dashboard(checks, termine, vorlauf):
@@ -171,33 +216,41 @@ def render_dashboard(checks, termine, vorlauf):
 
     def badge(status):
         cls, label = BADGE[status]
-        return f'<span class="badge {cls}">{label}</span>'
+        return f'<span class="badge badge-{cls}">{label}</span>'
 
     order = {"überfällig": 0, "fällig": 1, "aktuell": 2}
     checks_sorted = sorted(checks, key=lambda c: (order[c["status"]], c["faellig_am"]))
 
-    check_rows = ""
+    cards = ""
     for c in checks_sorted:
-        felder = "<br>".join(c["felder"])
-        check_rows += f"""
-        <tr>
-          <td><strong>{c['titel']}</strong><br>
-              <a href="{c['url']}" target="_blank">{c['url'].replace('https://www.mbb.com', '')}</a></td>
-          <td class="felder">{felder}</td>
-          <td>{c['intervall']}</td>
-          <td>{fmt(date.fromisoformat(c['zuletzt']))}</td>
-          <td>{fmt(c['faellig_am'])}</td>
-          <td>{badge(c['status'])}</td>
-          <td><code>confirm {c['id']}</code></td>
-        </tr>"""
+        cls, _ = BADGE[c["status"]]
+        hinweis = (f'<p class="hinweis">{c["hinweis"]}</p>' if c["hinweis"] else "")
+        kopplung = ("Finanzkalender" if c["intervall"] == "quartalsweise"
+                    else "jährlich")
+        cards += f"""
+      <article class="card status-{cls}">
+        <div class="card-kopf">
+          <h3>{c['titel']}</h3>
+          {badge(c['status'])}
+        </div>
+        <a class="card-url" href="{c['url']}" target="_blank">{c['url'].replace('https://www.mbb.com', 'mbb.com')}</a>
+        <div class="felder">{render_felder(c['felder'])}</div>
+        {hinweis}
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>{c['intervall']} · {kopplung}</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>{fmt(date.fromisoformat(c['zuletzt']))}</div>
+          <div><span class="meta-label">Fällig am</span><strong>{fmt(c['faellig_am'])}</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>{c['id']}</code></div>
+      </article>"""
 
     termin_rows = ""
     for t in sorted(termine, key=lambda x: x["datum"]):
         termin_rows += f"""
         <tr>
-          <td>{fmt(t['datum'])}</td>
+          <td class="t-datum">{fmt(t['datum'])}</td>
           <td>{t['titel']}</td>
-          <td>{badge(t['status'])}</td>
+          <td class="t-status">{badge(t['status'])}</td>
         </tr>"""
 
     n_over = sum(1 for c in checks if c["status"] == "überfällig")
@@ -211,87 +264,114 @@ def render_dashboard(checks, termine, vorlauf):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MBB Website-Tracker – Statusübersicht</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 <style>
   :root {{
-    --ink: #1a2332; --muted: #5b6675; --line: #d9dee5; --bg: #f5f6f8;
-    --panel: #ffffff; --ok: #1d7a4f; --ok-bg: #e3f2ea;
-    --due: #9a6a00; --due-bg: #fdf0d5; --over: #a3232b; --over-bg: #fbe4e5;
-    --past: #5b6675; --past-bg: #e8eaee; --accent: #10366f;
+    --ink: #1a1a1a; --muted: #6b6b6b; --line: #dcdcdc; --panel: #f0f0f0;
+    --red: #e2001a;
+    --ok: #1d7a4f; --ok-bg: #e7f2ec;
+    --due: #96650a; --due-bg: #fbf1dc;
+    --over: #b3121b; --over-bg: #fbe6e7;
+    --past: #6b6b6b; --past-bg: #ececec;
   }}
   * {{ box-sizing: border-box; }}
-  body {{ margin: 0; background: var(--bg); color: var(--ink);
+  body {{ margin: 0; background: #fff; color: var(--ink);
          font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: 15px; }}
-  header {{ background: var(--panel); border-bottom: 3px solid var(--accent);
-            padding: 24px 32px; }}
-  header h1 {{ margin: 0 0 4px; font-size: 20px; font-weight: 600; }}
-  header p {{ margin: 0; color: var(--muted); font-size: 13px; }}
-  main {{ max-width: 1180px; margin: 0 auto; padding: 24px 32px 48px; }}
-  .summary {{ display: flex; gap: 12px; margin: 0 0 24px; flex-wrap: wrap; }}
-  .card {{ background: var(--panel); border: 1px solid var(--line);
-           border-radius: 6px; padding: 12px 18px; min-width: 130px; }}
-  .card .num {{ font-size: 26px; font-weight: 600; }}
-  .card .lbl {{ font-size: 12px; color: var(--muted); text-transform: uppercase;
-                letter-spacing: .04em; }}
-  .card.over .num {{ color: var(--over); }}
-  .card.due .num {{ color: var(--due); }}
-  .card.ok .num {{ color: var(--ok); }}
-  h2 {{ font-size: 15px; font-weight: 600; margin: 28px 0 10px;
-        text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }}
-  table {{ width: 100%; border-collapse: collapse; background: var(--panel);
-           border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }}
-  th {{ text-align: left; font-size: 12px; text-transform: uppercase;
-        letter-spacing: .04em; color: var(--muted); font-weight: 500;
-        padding: 10px 12px; border-bottom: 1px solid var(--line);
-        background: #fafbfc; }}
-  td {{ padding: 12px; border-bottom: 1px solid var(--line);
-        vertical-align: top; }}
-  tr:last-child td {{ border-bottom: none; }}
-  td.felder {{ color: var(--muted); font-size: 13px; max-width: 340px; }}
-  a {{ color: var(--accent); text-decoration: none; font-size: 13px; }}
-  a:hover {{ text-decoration: underline; }}
-  code {{ font-family: "IBM Plex Mono", monospace; font-size: 12px;
-          background: var(--bg); padding: 2px 6px; border-radius: 4px; }}
-  .badge {{ display: inline-block; padding: 3px 10px; border-radius: 999px;
-            font-size: 12px; font-weight: 500; white-space: nowrap; }}
-  .badge-ok  {{ background: var(--ok-bg);  color: var(--ok); }}
-  .badge-due {{ background: var(--due-bg); color: var(--due); }}
-  .badge-over{{ background: var(--over-bg);color: var(--over); }}
-  .badge-past{{ background: var(--past-bg);color: var(--past); }}
-  footer {{ color: var(--muted); font-size: 12px; margin-top: 24px; }}
+  header {{ border-top: 4px solid var(--red); border-bottom: 1px solid var(--line);
+            padding: 26px 36px; display: flex; align-items: center; gap: 18px; }}
+  .logo {{ background: #111; color: #fff; font-weight: 600; font-size: 20px;
+           padding: 12px 16px; letter-spacing: .02em; }}
+  header h1 {{ margin: 0; font-size: 19px; font-weight: 600; }}
+  header p {{ margin: 2px 0 0; color: var(--muted); font-size: 13px; }}
+  main {{ max-width: 1220px; margin: 0 auto; padding: 28px 36px 56px; }}
+  .summary {{ display: flex; gap: 1px; background: var(--line);
+              border: 1px solid var(--line); margin-bottom: 34px; }}
+  .sum {{ background: #fff; flex: 1; padding: 14px 18px; }}
+  .sum .num {{ font-size: 28px; font-weight: 600; }}
+  .sum .lbl {{ font-size: 11px; color: var(--muted); text-transform: uppercase;
+               letter-spacing: .08em; }}
+  .sum.over .num {{ color: var(--over); }}
+  .sum.due .num {{ color: var(--due); }}
+  .sum.ok .num {{ color: var(--ok); }}
+  h2 {{ font-size: 13px; font-weight: 600; margin: 36px 0 14px;
+        text-transform: uppercase; letter-spacing: .12em; }}
+  h2::after {{ content: ""; display: block; height: 1px; background: var(--line);
+               margin-top: 10px; }}
+  .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+           gap: 18px; }}
+  .card {{ border: 1px solid var(--line); border-top: 3px solid var(--line);
+           padding: 16px 18px 0; display: flex; flex-direction: column; }}
+  .card.status-over {{ border-top-color: var(--over); }}
+  .card.status-due  {{ border-top-color: var(--due); }}
+  .card.status-ok   {{ border-top-color: #b9c4bd; }}
+  .card-kopf {{ display: flex; justify-content: space-between; gap: 10px;
+                align-items: baseline; }}
+  .card h3 {{ margin: 0; font-size: 15px; font-weight: 600; }}
+  .card-url {{ font-size: 12px; color: var(--muted); text-decoration: none;
+               margin: 3px 0 12px; display: block; }}
+  .card-url:hover {{ color: var(--red); }}
+  .felder {{ border-top: 1px solid var(--line); }}
+  .feld {{ display: flex; justify-content: space-between; gap: 14px;
+           padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }}
+  .feld-label {{ color: var(--muted); }}
+  .feld-wert {{ text-align: right; font-weight: 500; }}
+  .feld-voll {{ color: var(--muted); }}
+  .hinweis {{ color: var(--over); font-size: 12px; margin: 8px 0 0; }}
+  .card-meta {{ display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px;
+                padding: 12px 0; margin-top: auto; }}
+  .meta-label {{ display: block; font-size: 10px; text-transform: uppercase;
+                 letter-spacing: .08em; color: var(--muted); margin-bottom: 1px; }}
+  .card-fuss {{ border-top: 1px solid var(--line); margin: 0 -18px;
+                padding: 8px 18px; background: #fafafa; font-size: 12px;
+                color: var(--muted); }}
+  code {{ font-family: "IBM Plex Mono", monospace; font-size: 12px; }}
+  .badge {{ padding: 3px 10px; font-size: 11px; font-weight: 600;
+            letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }}
+  .badge-ok   {{ background: var(--ok-bg);   color: var(--ok); }}
+  .badge-due  {{ background: var(--due-bg);  color: var(--due); }}
+  .badge-over {{ background: var(--over-bg); color: var(--over); }}
+  .badge-past {{ background: var(--past-bg); color: var(--past); }}
+  table {{ width: 100%; border-collapse: collapse; }}
+  td {{ padding: 13px 8px; border-bottom: 1px solid var(--line); font-size: 15px; }}
+  .t-datum {{ width: 180px; color: var(--ink); }}
+  .t-status {{ width: 130px; text-align: right; }}
+  footer {{ color: var(--muted); font-size: 12px; margin-top: 30px; }}
+  @media (max-width: 640px) {{
+    header, main {{ padding-left: 18px; padding-right: 18px; }}
+    .summary {{ flex-direction: column; }}
+  }}
 </style>
 </head>
 <body>
 <header>
-  <h1>MBB Website-Tracker</h1>
-  <p>Statusübersicht der zu pflegenden Website-Inhalte · Stand: {date.today().strftime('%d.%m.%Y')} · Erinnerungsvorlauf: {vorlauf} Tage</p>
+  <div class="logo">MBB</div>
+  <div>
+    <h1>Website-Tracker</h1>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: {date.today().strftime('%d.%m.%Y')} · Erinnerung ab {vorlauf} Tagen vor Fälligkeit</p>
+  </div>
 </header>
 <main>
   <div class="summary">
-    <div class="card over"><div class="num">{n_over}</div><div class="lbl">überfällig</div></div>
-    <div class="card due"><div class="num">{n_due}</div><div class="lbl">fällig</div></div>
-    <div class="card ok"><div class="num">{n_ok}</div><div class="lbl">aktuell</div></div>
+    <div class="sum over"><div class="num">{n_over}</div><div class="lbl">überfällig</div></div>
+    <div class="sum due"><div class="num">{n_due}</div><div class="lbl">fällig</div></div>
+    <div class="sum ok"><div class="num">{n_ok}</div><div class="lbl">aktuell</div></div>
   </div>
 
   <h2>Prüfpunkte</h2>
-  <table>
-    <thead><tr>
-      <th>Bereich / Seite</th><th>Zu prüfende Angaben</th><th>Intervall</th>
-      <th>Zuletzt bestätigt</th><th>Fällig am</th><th>Status</th><th>Bestätigen mit</th>
-    </tr></thead>
-    <tbody>{check_rows}
-    </tbody>
-  </table>
+  <div class="grid">{cards}
+  </div>
 
   <h2>Finanzkalender</h2>
   <table>
-    <thead><tr><th>Datum</th><th>Termin</th><th>Status</th></tr></thead>
     <tbody>{termin_rows}
     </tbody>
   </table>
 
-  <footer>Erzeugt durch tracker.py · Erledigte Prüfungen bestätigen mit:
-    <code>python tracker.py confirm &lt;id&gt;</code></footer>
+  <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
+    nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
+    letzten Bestätigung. Erledigte Prüfungen bestätigen: Datum in
+    <code>state.json</code> auf heute setzen oder
+    <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
 </main>
 </body>
 </html>"""
@@ -299,9 +379,10 @@ def render_dashboard(checks, termine, vorlauf):
 
 def write_dashboard(config, state):
     checks, termine, vorlauf = collect(config, state)
-    DASHBOARD_FILE.write_text(render_dashboard(checks, termine, vorlauf),
-                              encoding="utf-8")
-    print(f"Dashboard aktualisiert: {DASHBOARD_FILE}")
+    html = render_dashboard(checks, termine, vorlauf)
+    DASHBOARD_FILE.write_text(html, encoding="utf-8")
+    INDEX_FILE.write_text(html, encoding="utf-8")
+    print(f"Dashboard aktualisiert: {DASHBOARD_FILE} (+ index.html)")
 
 
 # ---------------------------------------------------------------- Kommandos
