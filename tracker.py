@@ -3,11 +3,12 @@
 """
 MBB Website-Tracker
 ===================
-Zeitbasiertes Erinnerungssystem mit Website-Abgleich (Soll-Ist-Crawler).
+Zeitbasiertes Erinnerungssystem mit Website-Abgleich (Soll-Ist-Crawler)
+und externem Beteiligungs-Abgleich (MarketScreener).
 
 Kommandos:
-    python tracker.py run              Fälligkeiten + Website prüfen, ggf. mailen,
-                                       Dashboard neu erzeugen (für Cron/Scheduler)
+    python tracker.py run              Fälligkeiten + Website + externe Quellen
+                                       prüfen, ggf. mailen, Dashboard erzeugen
     python tracker.py confirm <id>     Prüfpunkt als erledigt markieren
     python tracker.py list             Alle Prüfpunkte mit Status im Terminal
     python tracker.py dashboard        Nur das Dashboard neu erzeugen
@@ -17,9 +18,17 @@ Fälligkeitslogik:
                       letzten Bestätigung (Fallback: +90 Tage)
     jaehrlich      -> fällig 365 Tage nach der letzten Bestätigung
 
-Website-Abgleich (Schalter in config.yaml -> website_abgleich.aktiv):
-    Ruft jede Prüfpunkt-Seite ab und meldet, wenn hinterlegte "pruefwerte"
-    dort nicht mehr vorkommen (Seite geändert oder defekt).
+Website-Abgleich (config: website_abgleich.aktiv):
+    Ruft jede Prüfpunkt-Seite auf mbb.com ab und meldet, wenn hinterlegte
+    "pruefwerte" dort nicht mehr vorkommen.
+
+Externer Abgleich (config: extern_abgleich.aktiv):
+    Ruft je Prüfpunkt mit "extern"-Block die angegebene externe Seite ab,
+    sucht den Prozentwert hinter dem Suchbegriff (z. B. "MBB") und
+    vergleicht ihn mit dem erwarteten Wert innerhalb einer Toleranz.
+    Hinweis: externe Portale runden anders und können automatisierte
+    Abrufe blockieren; bei Blockade erscheint "nicht erreichbar" und der
+    Vergleich bleibt manuell über die Referenz-Links möglich.
 
 Abhängigkeit: pyyaml  (pip install pyyaml)
 SMTP als Umgebungsvariablen: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
@@ -47,7 +56,10 @@ INDEX_FILE = BASE / "index.html"
 JAEHRLICH_TAGE = 365
 QUARTAL_FALLBACK_TAGE = 90
 HTTP_TIMEOUT = 25
-USER_AGENT = "Mozilla/5.0 (MBB-Website-Tracker; interner Pflege-Check)"
+USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+              "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+PROZENT_RE = re.compile(r"(\d{1,3}(?:[.,]\d{1,2})?)\s*%")
+SUCHFENSTER = 140   # Zeichen hinter dem Suchbegriff, in denen der %-Wert stehen darf
 
 
 # ---------------------------------------------------------------- Daten
@@ -90,11 +102,9 @@ def kalender_daten(config):
     return sorted(daten)
 
 
-# ---------------------------------------------------------------- Crawler
+# ---------------------------------------------------------------- Abruf
 
 def normalisiere(text):
-    """HTML-Entities auflösen, geschützte Leerzeichen und Mehrfach-
-    Whitespace vereinheitlichen, damit Textvergleiche robust sind."""
     text = html_mod.unescape(text)
     text = text.replace("\u00a0", " ").replace("\u202f", " ").replace("\u2009", " ")
     return re.sub(r"\s+", " ", text)
@@ -110,7 +120,10 @@ def html_zu_text(quelltext):
 def hole_seite(url):
     """Liefert (seitentext, fehler). Genau eines von beiden ist gesetzt."""
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+        req = urllib.request.Request(url, headers={
+            "User-Agent": USER_AGENT,
+            "Accept-Language": "de,en;q=0.8",
+        })
         with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
             roh = resp.read().decode("utf-8", errors="replace")
         return html_zu_text(roh), None
@@ -118,9 +131,9 @@ def hole_seite(url):
         return None, str(e)
 
 
+# ---------------------------------------------------------------- Website-Abgleich (mbb.com)
+
 def website_abgleich(config, fetch=hole_seite):
-    """Prüft pro Check, ob die pruefwerte auf der Seite vorkommen.
-    Liefert dict check_id -> {"status": ok|abweichung|fehler|keine, ...}."""
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
     ergebnisse = {}
     if not aktiv:
@@ -143,6 +156,59 @@ def website_abgleich(config, fetch=hole_seite):
             ergebnisse[check["id"]] = {"status": "abweichung", "fehlend": fehlend}
         else:
             ergebnisse[check["id"]] = {"status": "ok"}
+    return ergebnisse
+
+
+# ---------------------------------------------------------------- Externer Abgleich (z. B. MarketScreener)
+
+def finde_prozent(text, suchbegriff):
+    """Sucht jede Fundstelle des Suchbegriffs und liest den ersten
+    Prozentwert im Fenster dahinter. Liefert float oder None."""
+    start = 0
+    while True:
+        pos = text.find(suchbegriff, start)
+        if pos < 0:
+            return None
+        fenster = text[pos:pos + SUCHFENSTER]
+        m = PROZENT_RE.search(fenster)
+        if m:
+            return float(m.group(1).replace(",", "."))
+        start = pos + len(suchbegriff)
+
+
+def extern_abgleich(config, fetch=hole_seite):
+    """Vergleicht Prozentwerte externer Quellen mit den erwarteten Werten.
+    Liefert dict check_id -> {"status": ok|abweichung|nicht_auswertbar|fehler, ...}."""
+    aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
+    ergebnisse = {}
+    if not aktiv:
+        return ergebnisse
+    seiten_cache = {}
+    for check in config["checks"]:
+        ext = check.get("extern")
+        if not ext:
+            continue
+        url = ext["url"]
+        if url not in seiten_cache:
+            seiten_cache[url] = fetch(url)
+        text, fehler = seiten_cache[url]
+        if fehler:
+            ergebnisse[check["id"]] = {"status": "fehler", "fehler": fehler,
+                                       "url": url}
+            continue
+        gefunden = finde_prozent(text, ext.get("suchbegriff", "MBB"))
+        if gefunden is None:
+            ergebnisse[check["id"]] = {"status": "nicht_auswertbar", "url": url}
+            continue
+        erwartet = float(ext["erwartet"])
+        toleranz = float(ext.get("toleranz", 0.5))
+        if abs(gefunden - erwartet) > toleranz:
+            ergebnisse[check["id"]] = {"status": "abweichung",
+                                       "gefunden": gefunden,
+                                       "erwartet": erwartet, "url": url}
+        else:
+            ergebnisse[check["id"]] = {"status": "ok", "gefunden": gefunden,
+                                       "erwartet": erwartet, "url": url}
     return ergebnisse
 
 
@@ -181,16 +247,18 @@ def kalender_status(eintrag, vorlauf):
     return "geplant", d, tage
 
 
-def collect(config, state, web=None):
+def collect(config, state, web=None, extern=None):
     vorlauf = config.get("erinnerung", {}).get("vorlauf_tage", 14)
     termine_daten = kalender_daten(config)
     web = web or {}
+    extern = extern or {}
     checks = []
     for c in config["checks"]:
         s, faellig, tage, hinweis = status_of(c, state, vorlauf, termine_daten)
         checks.append({**c, "status": s, "faellig_am": faellig, "tage": tage,
                        "hinweis": hinweis,
                        "web": web.get(c["id"]),
+                       "ext": extern.get(c["id"]),
                        "zuletzt": state[c["id"]]["zuletzt_bestaetigt"]})
     termine = []
     for k in config.get("kalender", []):
@@ -201,11 +269,11 @@ def collect(config, state, web=None):
 
 # ---------------------------------------------------------------- E-Mail
 
-def build_mail_text(due_checks, due_termine, abweichungen):
+def build_mail_text(due_checks, due_termine, abweichungen, extern_abw):
     lines = ["Guten Tag,"]
     if abweichungen:
         lines += ["", "ACHTUNG – der Website-Abgleich hat Abweichungen gefunden",
-                  "(erwartete Angaben sind nicht mehr auf der Seite):"]
+                  "(erwartete Angaben stehen nicht mehr auf der mbb.com-Seite):"]
         for c in abweichungen:
             lines.append("")
             lines.append(f"• {c['titel']}")
@@ -214,6 +282,17 @@ def build_mail_text(due_checks, due_termine, abweichungen):
                 lines.append(f"  - nicht gefunden: \"{w}\"")
             lines.append("  Bitte Seite prüfen. Ist die Änderung beabsichtigt, den")
             lines.append("  neuen Wert in config.yaml (pruefwerte/felder) nachziehen.")
+    if extern_abw:
+        lines += ["", "ACHTUNG – externe Quelle weicht vom Website-Wert ab",
+                  "(bitte manuell prüfen; Rundungs-/Methodikunterschiede möglich):"]
+        for c in extern_abw:
+            e = c["ext"]
+            lines.append("")
+            lines.append(f"• {c['titel']}")
+            lines.append(f"  Erwartet (mbb.com): {e['erwartet']} % – "
+                         f"extern gefunden: {e['gefunden']} %")
+            lines.append(f"  Externe Quelle: {e['url']}")
+            lines.append(f"  Eigene Seite: {c['url']}")
     if due_checks:
         lines += ["", "Folgende Inhalte sind turnusmäßig zur Prüfung fällig:"]
         for c in due_checks:
@@ -302,6 +381,24 @@ def render_web(web):
     return '<p class="web web-neutral">Website-Abgleich: keine Prüfwerte hinterlegt</p>'
 
 
+def render_ext(ext):
+    if ext is None:
+        return ""
+    s = ext["status"]
+    if s == "ok":
+        return (f'<p class="web web-ok">Externer Abgleich: {ext["gefunden"]} % '
+                f'(erwartet {ext["erwartet"]} %) – im Rahmen</p>')
+    if s == "abweichung":
+        return (f'<p class="web web-alarm">Externer Abgleich: Quelle nennt '
+                f'{ext["gefunden"]} %, erwartet {ext["erwartet"]} % – bitte '
+                f'manuell prüfen</p>')
+    if s == "fehler":
+        return ('<p class="web web-warn">Externer Abgleich: Quelle nicht '
+                'erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>')
+    return ('<p class="web web-warn">Externer Abgleich: kein Prozentwert '
+            'auf der Quellseite gefunden – manuell über Link prüfen</p>')
+
+
 def render_referenzen(refs):
     if not refs:
         return ""
@@ -310,7 +407,7 @@ def render_referenzen(refs):
     return f'<p class="refs">Vergleichsquellen (manuell): {links}</p>'
 
 
-def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
+def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
     def fmt(d):
         return d.strftime("%d.%m.%Y")
 
@@ -318,15 +415,18 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
         cls, label = BADGE[status]
         return f'<span class="badge badge-{cls}">{label}</span>'
 
+    def hat_alarm(c):
+        return ((c["web"] and c["web"]["status"] == "abweichung") or
+                (c["ext"] and c["ext"]["status"] == "abweichung"))
+
     def sortkey(c):
-        alarm = 0 if (c["web"] and c["web"]["status"] == "abweichung") else 1
         order = {"überfällig": 0, "fällig": 1, "aktuell": 2}
-        return (alarm, order[c["status"]], c["faellig_am"])
+        return (0 if hat_alarm(c) else 1, order[c["status"]], c["faellig_am"])
 
     cards = ""
     for c in sorted(checks, key=sortkey):
         cls, _ = BADGE[c["status"]]
-        if c["web"] and c["web"]["status"] == "abweichung":
+        if hat_alarm(c):
             cls = "over"
         hinweis = (f'<p class="hinweis">{c["hinweis"]}</p>' if c["hinweis"] else "")
         kopplung = ("Finanzkalender" if c["intervall"] == "quartalsweise"
@@ -340,6 +440,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
         <a class="card-url" href="{c['url']}" target="_blank">{c['url'].replace('https://www.mbb.com', 'mbb.com')}</a>
         <div class="felder">{render_felder(c['felder'])}</div>
         {render_web(c['web'])}
+        {render_ext(c['ext'])}
         {render_referenzen(c.get('referenzen'))}
         {hinweis}
         <div class="card-meta">
@@ -362,10 +463,14 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
     n_over = sum(1 for c in checks if c["status"] == "überfällig")
     n_due = sum(1 for c in checks if c["status"] == "fällig")
     n_ok = sum(1 for c in checks if c["status"] == "aktuell")
-    n_web = sum(1 for c in checks
-                if c["web"] and c["web"]["status"] == "abweichung")
-    abgleich_info = ("Website-Abgleich aktiv" if abgleich_aktiv
-                     else "Website-Abgleich abgeschaltet")
+    n_alarm = sum(1 for c in checks
+                  if (c["web"] and c["web"]["status"] == "abweichung") or
+                     (c["ext"] and c["ext"]["status"] == "abweichung"))
+    info = []
+    info.append("Website-Abgleich aktiv" if abgleich_aktiv
+                else "Website-Abgleich abgeschaltet")
+    info.append("externer Abgleich aktiv" if extern_aktiv
+                else "externer Abgleich abgeschaltet")
 
     return f"""<!DOCTYPE html>
 <html lang="de">
@@ -463,12 +568,12 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
   <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: {date.today().strftime('%d.%m.%Y')} · Erinnerung ab {vorlauf} Tagen vor Fälligkeit · {abgleich_info}</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: {date.today().strftime('%d.%m.%Y')} · Erinnerung ab {vorlauf} Tagen vor Fälligkeit · {' · '.join(info)}</p>
   </div>
 </header>
 <main>
   <div class="summary">
-    <div class="sum over"><div class="num">{n_web}</div><div class="lbl">Web-Abweichungen</div></div>
+    <div class="sum over"><div class="num">{n_alarm}</div><div class="lbl">Abweichungen</div></div>
     <div class="sum over"><div class="num">{n_over}</div><div class="lbl">überfällig</div></div>
     <div class="sum due"><div class="num">{n_due}</div><div class="lbl">fällig</div></div>
     <div class="sum ok"><div class="num">{n_ok}</div><div class="lbl">aktuell</div></div>
@@ -487,19 +592,23 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv):
   <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
     nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
     letzten Bestätigung. Der Website-Abgleich prüft, ob die hinterlegten
-    Prüfwerte noch auf der jeweiligen Seite stehen; Vergleichsquellen sind
-    Links für den manuellen Abgleich (externe Portale rechnen teils anders).
-    Erledigte Prüfungen bestätigen: Datum in <code>state.json</code> auf heute
-    setzen oder <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
+    Prüfwerte noch auf der jeweiligen mbb.com-Seite stehen. Der externe
+    Abgleich liest den MBB-Anteil bei externen Quellen (z. B. MarketScreener)
+    aus und vergleicht innerhalb einer Toleranz; externe Portale runden anders
+    und können automatisierte Abrufe blockieren – dann gilt der manuelle
+    Vergleich über die Links. Erledigte Prüfungen bestätigen: Datum in
+    <code>state.json</code> auf heute setzen oder
+    <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
 </main>
 </body>
 </html>"""
 
 
-def write_dashboard(config, state, web=None):
-    checks, termine, vorlauf = collect(config, state, web)
+def write_dashboard(config, state, web=None, extern=None):
+    checks, termine, vorlauf = collect(config, state, web, extern)
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
-    html = render_dashboard(checks, termine, vorlauf, aktiv)
+    ext_aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
+    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv)
     DASHBOARD_FILE.write_text(html, encoding="utf-8")
     INDEX_FILE.write_text(html, encoding="utf-8")
     print(f"Dashboard aktualisiert: {DASHBOARD_FILE} (+ index.html)")
@@ -511,21 +620,28 @@ def cmd_run():
     config = load_config()
     state = ensure_state(config, load_state())
     web = website_abgleich(config)
-    checks, termine, vorlauf = collect(config, state, web)
+    extern = extern_abgleich(config)
+    checks, termine, vorlauf = collect(config, state, web, extern)
     due_checks = [c for c in checks if c["status"] in ("fällig", "überfällig")]
     due_termine = [t for t in termine if t["status"] == "steht an"]
     abweichungen = [c for c in checks
                     if c["web"] and c["web"]["status"] == "abweichung"]
-    if due_checks or due_termine or abweichungen:
-        text = build_mail_text(due_checks, due_termine, abweichungen)
-        send_mail(config, text,
-                  len(due_checks) + len(due_termine) + len(abweichungen))
+    extern_abw = [c for c in checks
+                  if c["ext"] and c["ext"]["status"] == "abweichung"]
+    if due_checks or due_termine or abweichungen or extern_abw:
+        text = build_mail_text(due_checks, due_termine, abweichungen, extern_abw)
+        send_mail(config, text, len(due_checks) + len(due_termine)
+                  + len(abweichungen) + len(extern_abw))
     else:
         print("Nichts fällig, keine Abweichungen – keine Erinnerung nötig.")
-    fehler = [c for c in checks if c["web"] and c["web"]["status"] == "fehler"]
-    for c in fehler:
-        print(f"Warnung: {c['url']} nicht erreichbar ({c['web'].get('fehler', '')})")
-    write_dashboard(config, state, web)
+    for c in checks:
+        if c["web"] and c["web"]["status"] == "fehler":
+            print(f"Warnung: {c['url']} nicht erreichbar "
+                  f"({c['web'].get('fehler', '')})")
+        if c["ext"] and c["ext"]["status"] in ("fehler", "nicht_auswertbar"):
+            print(f"Warnung: externer Abgleich für {c['id']} nicht möglich "
+                  f"({c['ext'].get('fehler', 'kein Prozentwert gefunden')})")
+    write_dashboard(config, state, web, extern)
 
 
 def cmd_confirm(check_id):
@@ -540,22 +656,31 @@ def cmd_confirm(check_id):
     state[check_id]["zuletzt_bestaetigt"] = date.today().isoformat()
     save_state(state)
     print(f"'{check_id}' als geprüft bestätigt ({date.today().strftime('%d.%m.%Y')}).")
-    write_dashboard(config, state, website_abgleich(config))
+    write_dashboard(config, state, website_abgleich(config),
+                    extern_abgleich(config))
 
 
 def cmd_list():
     config = load_config()
     state = ensure_state(config, load_state())
     web = website_abgleich(config)
-    checks, termine, _ = collect(config, state, web)
+    extern = extern_abgleich(config)
+    checks, termine, _ = collect(config, state, web, extern)
     w = max(len(c["id"]) for c in checks)
     for c in checks:
         webinfo = ""
         if c["web"]:
             webinfo = {"ok": "web ok", "abweichung": "WEB-ABWEICHUNG",
                        "fehler": "web-fehler", "keine": "-"}[c["web"]["status"]]
+        extinfo = ""
+        if c["ext"]:
+            extinfo = {"ok": f"extern ok ({c['ext'].get('gefunden')} %)",
+                       "abweichung": f"EXTERN-ABWEICHUNG ({c['ext'].get('gefunden')} %)",
+                       "fehler": "extern-fehler",
+                       "nicht_auswertbar": "extern n. auswertbar"}[c["ext"]["status"]]
         print(f"{c['id']:<{w}}  {c['status']:<11}  fällig "
-              f"{c['faellig_am'].strftime('%d.%m.%Y')}  {webinfo:<15}  {c['titel']}")
+              f"{c['faellig_am'].strftime('%d.%m.%Y')}  {webinfo:<15}  "
+              f"{extinfo:<28}  {c['titel']}")
     print()
     for t in termine:
         print(f"{t['datum'].strftime('%d.%m.%Y')}  {t['status']:<9}  {t['titel']}")
@@ -564,7 +689,8 @@ def cmd_list():
 def cmd_dashboard():
     config = load_config()
     state = ensure_state(config, load_state())
-    write_dashboard(config, state, website_abgleich(config))
+    write_dashboard(config, state, website_abgleich(config),
+                    extern_abgleich(config))
 
 
 if __name__ == "__main__":
