@@ -247,8 +247,11 @@ def send_mail(config, text, anzahl):
         return False
     msg = MIMEText(text, "plain", "utf-8")
     msg["Subject"] = f"{mail_cfg.get('betreff_prefix', '')} {anzahl} Punkt(e) zur Prüfung"
+    empfaenger = mail_cfg["empfaenger"]
+    if isinstance(empfaenger, str):
+        empfaenger = [empfaenger]
     msg["From"] = mail_cfg["absender"]
-    msg["To"] = mail_cfg["empfaenger"]
+    msg["To"] = ", ".join(empfaenger)
     port = int(os.environ.get("SMTP_PORT", 587))
     with smtplib.SMTP(host, port) as s:
         s.starttls()
@@ -256,7 +259,7 @@ def send_mail(config, text, anzahl):
         if user and pw:
             s.login(user, pw)
         s.send_message(msg)
-    print(f"E-Mail an {mail_cfg['empfaenger']} gesendet ({anzahl} Punkte).")
+    print(f"E-Mail an {', '.join(empfaenger)} gesendet ({anzahl} Punkte).")
     return True
 
 
