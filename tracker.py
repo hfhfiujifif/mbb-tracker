@@ -480,7 +480,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
 <title>MBB Website-Tracker – Statusübersicht</title>
 <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {{
     --ink: #1a1a1a; --muted: #6b6b6b; --line: #dcdcdc; --panel: #f0f0f0;
@@ -490,7 +490,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
     --over: #b3121b; --over-bg: #fbe6e7;
     --past: #6b6b6b; --past-bg: #ececec;
   }}
-  * {{ box-sizing: border-box; }}
+  * {{ box-sizing: border-box; font-family: "IBM Plex Sans", "Segoe UI", sans-serif; }}
   body {{ margin: 0; background: #fff; color: var(--ink);
          font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: 15px; }}
   header {{ border-top: 4px solid var(--red); border-bottom: 1px solid var(--line);
@@ -546,7 +546,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
   .card-fuss {{ border-top: 1px solid var(--line); margin: 0 -18px;
                 padding: 8px 18px; background: #fafafa; font-size: 12px;
                 color: var(--muted); }}
-  code {{ font-family: "IBM Plex Mono", monospace; font-size: 12px; }}
+  code {{ font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: 12px; }}
   .badge {{ padding: 3px 10px; font-size: 11px; font-weight: 600;
             letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }}
   .badge-ok   {{ background: var(--ok-bg);   color: var(--ok); }}
