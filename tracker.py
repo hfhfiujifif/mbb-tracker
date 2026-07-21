@@ -126,7 +126,7 @@ def hole_seite(url):
         })
         with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
             roh = resp.read().decode("utf-8", errors="replace")
-        return html_zu_text(roh), None
+        return roh, None
     except Exception as e:
         return None, str(e)
 
@@ -141,19 +141,37 @@ def website_abgleich(config, fetch=hole_seite):
     seiten_cache = {}
     for check in config["checks"]:
         werte = check.get("pruefwerte") or []
-        if not werte:
+        werte_roh = check.get("pruefwerte_roh") or []
+        verboten = check.get("verboten") or []
+        if not (werte or werte_roh or verboten):
             ergebnisse[check["id"]] = {"status": "keine"}
             continue
         url = check["url"]
         if url not in seiten_cache:
             seiten_cache[url] = fetch(url)
-        text, fehler = seiten_cache[url]
+        roh, fehler = seiten_cache[url]
         if fehler:
             ergebnisse[check["id"]] = {"status": "fehler", "fehler": fehler}
             continue
+        text = html_zu_text(roh)
+        roh_norm = normalisiere(roh)
         fehlend = [w for w in werte if normalisiere(w) not in text]
-        if fehlend:
-            ergebnisse[check["id"]] = {"status": "abweichung", "fehlend": fehlend}
+        fehlend += [f"[Quellcode] {w}" for w in werte_roh
+                    if normalisiere(w) not in roh_norm]
+        unerwuenscht = []
+        for v in verboten:
+            wert = v["wert"] if isinstance(v, dict) else v
+            ab = v.get("ab") if isinstance(v, dict) else None
+            if isinstance(ab, str):
+                ab = date.fromisoformat(ab)
+            if ab and date.today() < ab:
+                continue
+            if normalisiere(wert) in text:
+                unerwuenscht.append(wert)
+        if fehlend or unerwuenscht:
+            ergebnisse[check["id"]] = {"status": "abweichung",
+                                       "fehlend": fehlend,
+                                       "unerwuenscht": unerwuenscht}
         else:
             ergebnisse[check["id"]] = {"status": "ok"}
     return ergebnisse
@@ -191,12 +209,12 @@ def extern_abgleich(config, fetch=hole_seite):
         url = ext["url"]
         if url not in seiten_cache:
             seiten_cache[url] = fetch(url)
-        text, fehler = seiten_cache[url]
+        roh, fehler = seiten_cache[url]
         if fehler:
             ergebnisse[check["id"]] = {"status": "fehler", "fehler": fehler,
                                        "url": url}
             continue
-        gefunden = finde_prozent(text, ext.get("suchbegriff", "MBB"))
+        gefunden = finde_prozent(html_zu_text(roh), ext.get("suchbegriff", "MBB"))
         if gefunden is None:
             ergebnisse[check["id"]] = {"status": "nicht_auswertbar", "url": url}
             continue
@@ -278,8 +296,10 @@ def build_mail_text(due_checks, due_termine, abweichungen, extern_abw):
             lines.append("")
             lines.append(f"• {c['titel']}")
             lines.append(f"  Seite: {c['url']}")
-            for w in c["web"]["fehlend"]:
-                lines.append(f"  - nicht gefunden: \"{w}\"")
+            for w in c["web"].get("fehlend", []):
+                lines.append(f"  - nicht mehr gefunden: \"{w}\"")
+            for w in c["web"].get("unerwuenscht", []):
+                lines.append(f"  - sollte entfernt sein, steht aber noch da: \"{w}\"")
             lines.append("  Bitte Seite prüfen. Ist die Änderung beabsichtigt, den")
             lines.append("  neuen Wert in config.yaml (pruefwerte/felder) nachziehen.")
     if extern_abw:
@@ -373,9 +393,14 @@ def render_web(web):
     if s == "ok":
         return '<p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>'
     if s == "abweichung":
-        fehlend = ", ".join(f"„{w}“" for w in web["fehlend"])
-        return (f'<p class="web web-alarm">Abweichung – nicht auf der Seite '
-                f'gefunden: {fehlend}</p>')
+        teile = []
+        if web.get("fehlend"):
+            teile.append("nicht mehr gefunden: " +
+                         ", ".join(f"„{w}“" for w in web["fehlend"]))
+        if web.get("unerwuenscht"):
+            teile.append("sollte entfernt sein, steht aber noch da: " +
+                         ", ".join(f"„{w}“" for w in web["unerwuenscht"]))
+        return f'<p class="web web-alarm">Abweichung – {"; ".join(teile)}</p>' 
     if s == "fehler":
         return '<p class="web web-warn">Website-Abgleich: Seite nicht erreichbar</p>'
     return '<p class="web web-neutral">Website-Abgleich: keine Prüfwerte hinterlegt</p>'
