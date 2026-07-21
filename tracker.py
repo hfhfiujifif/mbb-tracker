@@ -407,7 +407,7 @@ def render_referenzen(refs):
     return f'<p class="refs">Vergleichsquellen (manuell): {links}</p>'
 
 
-def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
+def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen):
     def fmt(d):
         return d.strftime("%d.%m.%Y")
 
@@ -423,16 +423,22 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
         order = {"überfällig": 0, "fällig": 1, "aktuell": 2}
         return (0 if hat_alarm(c) else 1, order[c["status"]], c["faellig_am"])
 
-    cards = ""
+    farben = {g["name"]: g.get("farbe", "#1a1a1a") for g in gruppen}
+    gruppen_cards = {g["name"]: "" for g in gruppen}
     for c in sorted(checks, key=sortkey):
+        gname = c.get("gruppe") or "MBB"
+        if gname not in gruppen_cards:
+            gruppen_cards[gname] = ""
+            farben.setdefault(gname, "#1a1a1a")
+        gfarbe = farben.get(gname, "#1a1a1a")
         cls, _ = BADGE[c["status"]]
         if hat_alarm(c):
             cls = "over"
         hinweis = (f'<p class="hinweis">{c["hinweis"]}</p>' if c["hinweis"] else "")
         rhythmus = ("quartalsweise · Finanzkalender"
                     if c["intervall"] == "quartalsweise" else "jährlich")
-        cards += f"""
-      <article class="card status-{cls}">
+        gruppen_cards[gname] += f"""
+      <article class="card status-{cls}" style="border-left:5px solid {gfarbe}">
         <div class="card-kopf">
           <h3>{c['titel']}</h3>
           {badge(c['status'])}
@@ -467,6 +473,16 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
     n_alarm = sum(1 for c in checks
                   if (c["web"] and c["web"]["status"] == "abweichung") or
                      (c["ext"] and c["ext"]["status"] == "abweichung"))
+    pruefpunkte_html = ""
+    for gname, inhalt in gruppen_cards.items():
+        if not inhalt:
+            continue
+        gfarbe = farben.get(gname, "#1a1a1a")
+        pruefpunkte_html += (
+            f'  <div class="gruppe"><span class="gruppe-balken" '
+            f'style="background:{gfarbe}"></span>{gname}</div>\n'
+            f'  <div class="grid">{inhalt}\n  </div>\n')
+
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
                 else "Website-Abgleich abgeschaltet")
@@ -513,6 +529,11 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
         text-transform: uppercase; letter-spacing: .12em; }}
   h2::after {{ content: ""; display: block; height: 1px; background: var(--line);
                margin-top: 10px; }}
+  .gruppe {{ display: flex; align-items: center; gap: 12px; margin: 34px 0 14px;
+             font-size: 14px; font-weight: 600; letter-spacing: .08em;
+             text-transform: uppercase; }}
+  .gruppe-balken {{ width: 7px; height: 24px; display: inline-block; }}
+  .gruppe::after {{ content: ""; flex: 1; height: 1px; background: var(--line); }}
   .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
            gap: 18px; }}
   .card {{ border: 1px solid var(--line); border-top: 3px solid var(--line);
@@ -585,8 +606,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
   </div>
 
   <h2>Prüfpunkte</h2>
-  <div class="grid">{cards}
-  </div>
+{pruefpunkte_html}
 
   <h2>Finanzkalender</h2>
   <table>
@@ -613,7 +633,8 @@ def write_dashboard(config, state, web=None, extern=None):
     checks, termine, vorlauf = collect(config, state, web, extern)
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
     ext_aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
-    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv)
+    gruppen = config.get("gruppen") or [{"name": "MBB", "farbe": "#1a1a1a"}]
+    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen)
     DASHBOARD_FILE.write_text(html, encoding="utf-8")
     INDEX_FILE.write_text(html, encoding="utf-8")
     print(f"Dashboard aktualisiert: {DASHBOARD_FILE} (+ index.html)")
