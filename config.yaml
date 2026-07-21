@@ -26,6 +26,24 @@ email:
   # SMTP-Zugangsdaten als Umgebungsvariablen: SMTP_HOST, SMTP_PORT,
   # SMTP_USER, SMTP_PASS
 
+# Gruppen für die optische Gliederung im Dashboard.
+# "farbe" = Balken-/Trennerfarbe (Hex). Anpassbar, z. B. an die CI der Tochter.
+gruppen:
+  - name: "MBB"
+    farbe: "#1a1a1a"
+  - name: "Aumann"
+    farbe: "#D60117"
+  - name: "Friedrich Vorwerk"
+    farbe: "#004E9E"
+  - name: "DTS IT"
+    farbe: "#009EE3"
+  - name: "Delignit"
+    farbe: "#4C8B2B"
+  - name: "Hanke Tissue"
+    farbe: "#C8102E"
+  - name: "CT Formpolster"
+    farbe: "#E87722"
+
 erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
 
@@ -151,6 +169,7 @@ checks:
 
   # ---------- Töchter: MBB-Anteil (quartalsweise) ----------
   - id: aumann-anteil
+    gruppe: "Aumann"
     titel: "Aumann – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/aumann.html"
     intervall: quartalsweise
@@ -169,6 +188,7 @@ checks:
         url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
 
   - id: vorwerk-anteil
+    gruppe: "Friedrich Vorwerk"
     titel: "Friedrich Vorwerk – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: quartalsweise
@@ -187,6 +207,7 @@ checks:
         url: "https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/"
 
   - id: dts-anteil
+    gruppe: "DTS IT"
     titel: "DTS IT – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: quartalsweise
@@ -197,6 +218,7 @@ checks:
       - "80,00 %"
 
   - id: delignit-anteil
+    gruppe: "Delignit"
     titel: "Delignit – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: quartalsweise
@@ -215,6 +237,7 @@ checks:
         url: "https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/"
 
   - id: hanke-anteil
+    gruppe: "Hanke Tissue"
     titel: "Hanke Tissue – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: quartalsweise
@@ -225,6 +248,7 @@ checks:
       - "93,01 %"
 
   - id: ct-anteil
+    gruppe: "CT Formpolster"
     titel: "CT Formpolster – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: quartalsweise
@@ -236,6 +260,7 @@ checks:
 
   # ---------- Töchter: Stammdaten (jährlich, Stand 31.12.2025) ----------
   - id: aumann-stammdaten
+    gruppe: "Aumann"
     titel: "Aumann – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/aumann.html"
     intervall: jaehrlich
@@ -250,6 +275,7 @@ checks:
       - "773"
 
   - id: vorwerk-stammdaten
+    gruppe: "Friedrich Vorwerk"
     titel: "Friedrich Vorwerk – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: jaehrlich
@@ -264,6 +290,7 @@ checks:
       - "2.243"
 
   - id: dts-stammdaten
+    gruppe: "DTS IT"
     titel: "DTS IT – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: jaehrlich
@@ -278,6 +305,7 @@ checks:
       - "346"
 
   - id: delignit-stammdaten
+    gruppe: "Delignit"
     titel: "Delignit – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: jaehrlich
@@ -292,6 +320,7 @@ checks:
       - "380"
 
   - id: hanke-stammdaten
+    gruppe: "Hanke Tissue"
     titel: "Hanke Tissue – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: jaehrlich
@@ -306,6 +335,7 @@ checks:
       - "342"
 
   - id: ct-stammdaten
+    gruppe: "CT Formpolster"
     titel: "CT Formpolster – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: jaehrlich
