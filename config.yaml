@@ -88,6 +88,20 @@ checks:
       - "Schießle"
       - "Beyer"
 
+  - id: aktie-dividendenpolitik
+    titel: "Dividendenpolitik"
+    url: "https://www.mbb.com/ir/aktie.html"
+    intervall: quartalsweise
+    fundstelle: "Abschnitt 'Dividendenpolitik' – Textblock und Grafik 'Dividendenzahlungen je Aktie'"
+    felder:
+      - "Basisdividende 2026: 1,21 €/Aktie (16. Erhöhung in Folge)"
+      - "Ausschüttungen seit IPO: über 200 Mio. €"
+      - "Grafik: Dividendenzahlungen je Aktie bis 2026, 10x Share buy-back"
+    pruefwerte:
+      - "Dividendenpolitik"
+      - "16. in Folge"
+      - "200 Mio. €"
+
   # ---------- Zahlenwerk (quartalsweise) ----------
   - id: zahlenwerk
     titel: "Zahlenwerk / Eckdaten & Entwicklungstabelle"
