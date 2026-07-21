@@ -119,6 +119,17 @@ checks:
       - "Dividendenpolitik"
       - "16. in Folge"
       - "200 Mio. €"
+    # Prüft den Quellcode: Ist noch die 2026er-Dividendengrafik eingebunden?
+    # Nach der HV 2027 muss hier der neue Pfad (.../2027/...) eingetragen werden,
+    # sonst meldet der Tracker die veraltete Grafik – das ist gewollt.
+    pruefwerte_roh:
+      - "hauptversammlung/2026/260702-MAG-DividendeDE.png"
+    # Texte, die ab einem Datum NICHT mehr auf der Seite stehen dürfen
+    # (z. B. "e"-Kennzeichnung/Vorbehalt nach der Hauptversammlung).
+    # Beispiel – aktivieren, sobald der konkrete Wortlaut bekannt ist:
+    # verboten:
+    #   - wert: "vorbehaltlich der Zustimmung der Hauptversammlung"
+    #     ab: 2027-06-01
 
   # ---------- Zahlenwerk (quartalsweise) ----------
   - id: zahlenwerk
