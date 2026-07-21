@@ -439,6 +439,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
         </div>
         <a class="card-url" href="{c['url']}" target="_blank">{c['url'].replace('https://www.mbb.com', 'mbb.com')}</a>
         <div class="felder">{render_felder(c['felder'])}</div>
+        {('<p class="fundstelle">Zu ändern: ' + c['fundstelle'] + ' – <a href="' + c['url'] + '" target="_blank">Seite öffnen</a></p>') if c.get('fundstelle') else ''}
         {render_web(c['web'])}
         {render_ext(c['ext'])}
         {render_referenzen(c.get('referenzen'))}
@@ -536,6 +537,9 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv):
   .web-alarm   {{ background: var(--over-bg); color: var(--over); font-weight: 500; }}
   .web-warn    {{ background: var(--due-bg);  color: var(--due); }}
   .web-neutral {{ background: var(--past-bg); color: var(--past); }}
+  .fundstelle {{ font-size: 12px; color: var(--ink); background: var(--panel);
+                 padding: 6px 10px; margin: 10px 0 0; }}
+  .fundstelle a {{ color: var(--red); }}
   .refs {{ font-size: 12px; color: var(--muted); margin: 8px 0 0; }}
   .refs a {{ color: var(--ink); }}
   .hinweis {{ color: var(--over); font-size: 12px; margin: 8px 0 0; }}
