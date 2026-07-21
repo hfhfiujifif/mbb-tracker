@@ -33,16 +33,18 @@ gruppen:
     farbe: "#1a1a1a"
   - name: "Aumann"
     farbe: "#D60117"
-  - name: "Friedrich Vorwerk"
+  - name: "Vorwerk"
     farbe: "#004E9E"
   - name: "DTS IT"
-    farbe: "#009EE3"
+    farbe: "#FFCC00"      # obere Hälfte
+    farbe2: "#3C3C3C"     # untere Hälfte
   - name: "Delignit"
     farbe: "#4C8B2B"
   - name: "Hanke Tissue"
-    farbe: "#C8102E"
+    farbe: "#2F277B"
   - name: "CT Formpolster"
-    farbe: "#E87722"
+    farbe: "#F37320"      # obere Hälfte
+    farbe2: "#0A314D"     # untere Hälfte
 
 erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
@@ -199,8 +201,8 @@ checks:
         url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
 
   - id: vorwerk-anteil
-    gruppe: "Friedrich Vorwerk"
-    titel: "Friedrich Vorwerk – MBB Anteil"
+    gruppe: "Vorwerk"
+    titel: "Vorwerk – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: quartalsweise
     fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
@@ -286,8 +288,8 @@ checks:
       - "773"
 
   - id: vorwerk-stammdaten
-    gruppe: "Friedrich Vorwerk"
-    titel: "Friedrich Vorwerk – Stammdaten"
+    gruppe: "Vorwerk"
+    titel: "Vorwerk – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: jaehrlich
     fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
