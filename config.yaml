@@ -41,6 +41,7 @@ checks:
     titel: "Aktionärsstruktur"
     url: "https://www.mbb.com/ir/aktie.html"
     intervall: quartalsweise
+    fundstelle: "Abschnitt 'Aktionärsstruktur' – Textblock im unteren Seitenbereich"
     felder:
       - "Grundkapital: 5.436.169 €"
       - "Stückzahl: 5.436.169 nennwertlose Inhaberaktien"
@@ -58,6 +59,7 @@ checks:
     titel: "MBB in Zahlen / Streubesitz"
     url: "https://www.mbb.com/ir/aktie.html"
     intervall: quartalsweise
+    fundstelle: "Tabelle 'MBB in Zahlen' inkl. Zeile 'Streubesitz'"
     felder:
       - "Kennzahlentabelle (Angaben in T€, Margen bezogen auf Betriebsleistung)"
       - "Streubesitz: 29 %"
@@ -72,6 +74,7 @@ checks:
     titel: "Analysten-Liste"
     url: "https://www.mbb.com/ir/aktie.html"
     intervall: quartalsweise
+    fundstelle: "Abschnitt 'Analysten' – Tabelle Bank/Ansprechpartner"
     felder:
       - "Berenberg: Gerhard Orgonas"
       - "ODDO BHF: Klaus Breitenbach"
@@ -90,6 +93,7 @@ checks:
     titel: "Zahlenwerk / Eckdaten & Entwicklungstabelle"
     url: "https://www.mbb.com/ueber-uns/zahlenwerk.html"
     intervall: quartalsweise
+    fundstelle: "Kasten 'Unsere Eckdaten' und Tabelle 'Unsere Entwicklung seit 1995'"
     felder:
       - "Aktienzahl: 5.436.169"
       - "Direktoren: Dr. Christof Nesemeier, Torben Teichler"
@@ -104,6 +108,7 @@ checks:
     titel: "Unser Ursprung – Geschichte der MBB (Timeline)"
     url: "https://www.mbb.com/ueber-uns/unser-ursprung.html"
     intervall: quartalsweise
+    fundstelle: "Tabelle 'Geschichte der MBB' unter dem Einführungstext – neues Jahr oben ergänzen"
     felder:
       - "Neuester Eintrag 2026: Dividende 1,21 €/Aktie, Rückkauf 25 Mio. €, 20 Jahre Börse"
       - "Prüfen: Fehlen neue Ereignisse des laufenden Jahres?"
@@ -116,6 +121,7 @@ checks:
     titel: "Standorte (alle Gesellschaften)"
     url: "https://www.mbb.com/ueber-uns/standorte.html"
     intervall: quartalsweise
+    fundstelle: "Standort-Kacheln – Kachel der betroffenen Gesellschaft anpassen"
     felder:
       - "MBB SE: Kurfürstendamm 188, 10707 Berlin"
       - "Rund 50 Standorte: DE, PL, GR, NL, China, USA"
@@ -134,6 +140,7 @@ checks:
     titel: "Aumann – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/aumann.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 47,81 %"
     pruefwerte:
@@ -151,6 +158,7 @@ checks:
     titel: "Friedrich Vorwerk – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 44,26 %"
     pruefwerte:
@@ -168,6 +176,7 @@ checks:
     titel: "DTS IT – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 80,00 %"
     pruefwerte:
@@ -177,6 +186,7 @@ checks:
     titel: "Delignit – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 56,11 %"
     pruefwerte:
@@ -194,6 +204,7 @@ checks:
     titel: "Hanke Tissue – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 93,01 %"
     pruefwerte:
@@ -203,6 +214,7 @@ checks:
     titel: "CT Formpolster – MBB Anteil"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: quartalsweise
+    fundstelle: "Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote)"
     felder:
       - "MBB Anteil: 100 %"
     pruefwerte:
@@ -213,6 +225,7 @@ checks:
     titel: "Aumann – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/aumann.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 204 Mio. €"
       - "Mitarbeiter 2025: 773"
@@ -226,6 +239,7 @@ checks:
     titel: "Friedrich Vorwerk – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 704 Mio. €"
       - "Mitarbeiter 2025: 2.243"
@@ -239,6 +253,7 @@ checks:
     titel: "DTS IT – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/dts-it.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 116 Mio. €"
       - "Mitarbeiter 2025: 346"
@@ -252,6 +267,7 @@ checks:
     titel: "Delignit – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/delignit.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 65 Mio. €"
       - "Mitarbeiter 2025: 380"
@@ -265,6 +281,7 @@ checks:
     titel: "Hanke Tissue – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/hanke-tissue.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 61 Mio. €"
       - "Mitarbeiter 2025: 342"
@@ -278,6 +295,7 @@ checks:
     titel: "CT Formpolster – Stammdaten"
     url: "https://www.mbb.com/unsere-toechter/ct-formpolster.html"
     intervall: jaehrlich
+    fundstelle: "Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit'"
     felder:
       - "Umsatz 2025: 21 Mio. €"
       - "Mitarbeiter 2025: 124"
