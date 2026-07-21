@@ -38,11 +38,6 @@
         text-transform: uppercase; letter-spacing: .12em; }
   h2::after { content: ""; display: block; height: 1px; background: var(--line);
                margin-top: 10px; }
-  .gruppe { display: flex; align-items: center; gap: 12px; margin: 34px 0 14px;
-             font-size: 14px; font-weight: 600; letter-spacing: .08em;
-             text-transform: uppercase; }
-  .gruppe-balken { width: 7px; height: 24px; display: inline-block; }
-  .gruppe::after { content: ""; flex: 1; height: 1px; background: var(--line); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
            gap: 18px; }
   .card { border: 1px solid var(--line); border-top: 3px solid var(--line);
@@ -115,9 +110,8 @@
   </div>
 
   <h2>Prüfpunkte</h2>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#1a1a1a"></span>MBB</div>
   <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Aktionärsstruktur</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -136,7 +130,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>aktie-aktionaersstruktur</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>MBB in Zahlen / Streubesitz</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -155,7 +149,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>aktie-zahlen</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Analysten-Liste</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -174,7 +168,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>aktie-analysten</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Dividendenpolitik</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -193,7 +187,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>aktie-dividendenpolitik</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Zahlenwerk / Eckdaten & Entwicklungstabelle</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -207,12 +201,12 @@
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>20.07.2026</div>
           <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
         </div>
         <div class="card-fuss">Bestätigen: <code>zahlenwerk</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Unser Ursprung – Geschichte der MBB (Timeline)</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -231,7 +225,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>ursprung-timeline</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #1a1a1a">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Standorte (alle Gesellschaften)</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -250,10 +244,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>standorte</code></div>
       </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#D60117"></span>Aumann</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #D60117">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Aumann – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -262,7 +253,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">47,81 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-ok">Externer Abgleich: 47.8 % (erwartet 47.81 %) – im Rahmen</p>
+        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/" target="_blank">MarketScreener (Aumann-Aktionäre)</a></p>
         
         <div class="card-meta">
@@ -272,29 +263,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>aumann-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #D60117">
-        <div class="card-kopf">
-          <h3>Aumann – Stammdaten</h3>
-          <span class="badge badge-ok">aktuell</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">204 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">773</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2012</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
-        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>jährlich</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>aumann-stammdaten</code></div>
-      </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#004E9E"></span>Friedrich Vorwerk</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #004E9E">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Friedrich Vorwerk – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -303,7 +272,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">44,26 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-ok">Externer Abgleich: 44.2 % (erwartet 44.26 %) – im Rahmen</p>
+        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/" target="_blank">MarketScreener (Vorwerk-Aktionäre)</a></p>
         
         <div class="card-meta">
@@ -313,29 +282,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>vorwerk-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #004E9E">
-        <div class="card-kopf">
-          <h3>Friedrich Vorwerk – Stammdaten</h3>
-          <span class="badge badge-ok">aktuell</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">704 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">2.243</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2019</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
-        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>jährlich</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>vorwerk-stammdaten</code></div>
-      </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#009EE3"></span>DTS IT</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #009EE3">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>DTS IT – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -354,29 +301,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>dts-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #009EE3">
-        <div class="card-kopf">
-          <h3>DTS IT – Stammdaten</h3>
-          <span class="badge badge-ok">aktuell</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">116 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">346</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2008</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
-        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>jährlich</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>dts-stammdaten</code></div>
-      </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#4C8B2B"></span>Delignit</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #4C8B2B">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Delignit – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -385,7 +310,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">56,11 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-ok">Externer Abgleich: 56.1 % (erwartet 56.11 %) – im Rahmen</p>
+        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/" target="_blank">MarketScreener (Delignit)</a></p>
         
         <div class="card-meta">
@@ -395,29 +320,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>delignit-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #4C8B2B">
-        <div class="card-kopf">
-          <h3>Delignit – Stammdaten</h3>
-          <span class="badge badge-ok">aktuell</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">65 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">380</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2003</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
-        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>jährlich</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>delignit-stammdaten</code></div>
-      </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#C8102E"></span>Hanke Tissue</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #C8102E">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>Hanke Tissue – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -436,29 +339,7 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>hanke-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #C8102E">
-        <div class="card-kopf">
-          <h3>Hanke Tissue – Stammdaten</h3>
-          <span class="badge badge-ok">aktuell</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">61 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">342</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2006</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
-        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>jährlich</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>hanke-stammdaten</code></div>
-      </article>
-  </div>
-  <div class="gruppe"><span class="gruppe-balken" style="background:#E87722"></span>CT Formpolster</div>
-  <div class="grid">
-      <article class="card status-ok" style="border-left:5px solid #E87722">
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>CT Formpolster – MBB Anteil</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -477,7 +358,102 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>ct-anteil</code></div>
       </article>
-      <article class="card status-ok" style="border-left:5px solid #E87722">
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Aumann – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">mbb.com/unsere-toechter/aumann.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">204 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">773</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2012</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>aumann-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Friedrich Vorwerk – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">mbb.com/unsere-toechter/friedrich-vorwerk.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">704 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">2.243</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2019</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>vorwerk-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>DTS IT – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">mbb.com/unsere-toechter/dts-it.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">116 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">346</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2008</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/dts-it.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>dts-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Delignit – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">mbb.com/unsere-toechter/delignit.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">65 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">380</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2003</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>delignit-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
+        <div class="card-kopf">
+          <h3>Hanke Tissue – Stammdaten</h3>
+          <span class="badge badge-ok">aktuell</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">mbb.com/unsere-toechter/hanke-tissue.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">61 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">342</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2006</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
+        <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/hanke-tissue.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>jährlich</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>17.07.2027</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>hanke-stammdaten</code></div>
+      </article>
+      <article class="card status-ok">
         <div class="card-kopf">
           <h3>CT Formpolster – Stammdaten</h3>
           <span class="badge badge-ok">aktuell</span>
@@ -497,7 +473,6 @@
         <div class="card-fuss">Bestätigen: <code>ct-stammdaten</code></div>
       </article>
   </div>
-
 
   <h2>Finanzkalender</h2>
   <table>
