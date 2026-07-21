@@ -448,14 +448,18 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
         order = {"überfällig": 0, "fällig": 1, "aktuell": 2}
         return (0 if hat_alarm(c) else 1, order[c["status"]], c["faellig_am"])
 
-    farben = {g["name"]: g.get("farbe", "#1a1a1a") for g in gruppen}
+    def grad(g):
+        f1 = g.get("farbe", "#1a1a1a")
+        f2 = g.get("farbe2") or f1
+        return f"linear-gradient(to bottom, {f1} 50%, {f2} 50%)"
+    farben = {g["name"]: grad(g) for g in gruppen}
     gruppen_cards = {g["name"]: "" for g in gruppen}
     for c in sorted(checks, key=sortkey):
         gname = c.get("gruppe") or "MBB"
         if gname not in gruppen_cards:
             gruppen_cards[gname] = ""
-            farben.setdefault(gname, "#1a1a1a")
-        gfarbe = farben.get(gname, "#1a1a1a")
+            farben.setdefault(gname, "linear-gradient(to bottom, #1a1a1a, #1a1a1a)")
+        gfarbe = farben.get(gname, "linear-gradient(to bottom, #1a1a1a, #1a1a1a)")
         cls, _ = BADGE[c["status"]]
         if hat_alarm(c):
             cls = "over"
@@ -463,7 +467,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
         rhythmus = ("quartalsweise · Finanzkalender"
                     if c["intervall"] == "quartalsweise" else "jährlich")
         gruppen_cards[gname] += f"""
-      <article class="card status-{cls}" style="border-left:5px solid {gfarbe}">
+      <article class="card status-{cls}" style="background:{gfarbe} no-repeat left top / 5px 100%, #ffffff">
         <div class="card-kopf">
           <h3>{c['titel']}</h3>
           {badge(c['status'])}
@@ -502,7 +506,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     for gname, inhalt in gruppen_cards.items():
         if not inhalt:
             continue
-        gfarbe = farben.get(gname, "#1a1a1a")
+        gfarbe = farben.get(gname, "linear-gradient(to bottom, #1a1a1a, #1a1a1a)")
         pruefpunkte_html += (
             f'  <div class="gruppe"><span class="gruppe-balken" '
             f'style="background:{gfarbe}"></span>{gname}</div>\n'
