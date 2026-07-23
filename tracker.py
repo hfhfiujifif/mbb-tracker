@@ -367,7 +367,8 @@ def dd_rechner(config, state, news, fetch=hole_seite):
             continue
         if n["url"] in dd_state:
             continue
-        eintrag = {"titel": n["titel"], "datum": n["datum"]}
+        eintrag = {"titel": n["titel"], "datum": n["datum"],
+                   "erstmals": date.today().isoformat()}
         d = date.fromisoformat(n["datum"]) if n.get("datum") else None
         if basis_stand and d and d <= basis_stand:
             eintrag["status"] = "in_basis"
@@ -669,62 +670,71 @@ def render_news(news):
     return fehler_html + tabelle
 
 
-def render_dd(dd):
+def render_dd(dd, stripe):
+    """Kachel für den Anteils-Rechner; wird ans Ende der MBB-Gruppe gehängt."""
     if dd is None:
         return ""
+    heute = date.today()
+    def ist_neu(e):
+        f = e.get("erstmals")
+        return f and (heute - date.fromisoformat(f)).days <= 7
     basis_txt = de_zahl(dd["basis"])
-    zeilen = ""
-    for b in sorted(dd["beitraege"], key=lambda x: x.get("datum") or "", reverse=True):
+    hat_neu = any(ist_neu(b) for b in dd["beitraege"] + dd["offen"])
+    if hat_neu:
+        badge = '<span class="badge badge-over">NEU</span>'
+    elif dd["delta"] != 0:
+        badge = '<span class="badge badge-due">Vorschlag offen</span>'
+    else:
+        badge = '<span class="badge badge-ok">aktuell</span>'
+    zeilen = (f'<div class="feld"><span class="feld-label">Basis lt. Website '
+              f'(mittelbar, Stand {dd["basis_stand"] or "–"})</span>'
+              f'<span class="feld-wert">{basis_txt} %</span></div>'
+              f'<div class="feld"><span class="feld-label">Aktien gesamt</span>'
+              f'<span class="feld-wert">{de_zahl(dd["gesamt"], 0)}</span></div>')
+    for b in sorted(dd["beitraege"], key=lambda x: x.get("datum") or "",
+                    reverse=True):
         vz = "+" if b["richtung"] == "kauf" else "−"
+        neu_mark = (' <span class="badge badge-over">NEU</span>'
+                    if ist_neu(b) else "")
         zeilen += (f'<div class="feld"><span class="feld-label">'
                    f'{b.get("datum") or "–"} · {b["richtung"].capitalize()} · '
-                   f'<a href="{b["url"]}" target="_blank">Meldung</a></span>'
+                   f'<a href="{b["url"]}" target="_blank">Meldung</a>{neu_mark}</span>'
                    f'<span class="feld-wert">{vz}{de_zahl(b["stueck"], 0)} Aktien</span></div>')
     offen_html = ""
     for o in dd["offen"]:
+        neu_mark = (' <span class="badge badge-over">NEU</span>'
+                    if ist_neu(o) else "")
         offen_html += (f'<p class="web web-warn">Stückzahl nicht automatisch '
-                       f'ermittelbar – bitte <a href="{o["url"]}" target="_blank">'
-                       f'Meldung öffnen</a> ({o.get("datum") or "–"})</p>')
+                       f'ermittelbar – <a href="{o["url"]}" target="_blank">'
+                       f'Meldung öffnen</a> ({o.get("datum") or "–"}){neu_mark}</p>')
     if dd["delta"] != 0:
         vz = "+" if dd["delta"] > 0 else "−"
         vorschlag = (f'<p class="dd-vorschlag"><em>Vorschlag: {basis_txt} % '
                      f'{vz} {de_zahl(abs(dd["delta"]), 0)} / '
                      f'{de_zahl(dd["gesamt"], 0)} Aktien '
                      f'≈ <strong>{de_zahl(dd["vorschlag"])} %</strong> '
-                     f'(rechnerisch, aus den oben gelisteten Dealings – '
-                     f'kein amtlicher Wert)</em></p>')
+                     f'(rechnerisch – kein amtlicher Wert)</em></p>')
     else:
         vorschlag = (f'<p class="dd-vorschlag"><em>Kein neuer Vorschlag – '
-                     f'Basis unverändert {basis_txt} % '
-                     f'(keine verrechenbaren Dealings seit '
-                     f'{dd["basis_stand"] or "Basisdatum"})</em></p>')
+                     f'Basis unverändert {basis_txt} %</em></p>')
     berichte = ""
     if dd.get("berichte_url"):
         berichte = (f'<p class="refs">Berichte & Free Float (manuell): '
                     f'<a href="{dd["berichte_url"]}" target="_blank">'
                     f'EQS – Berichte MBB SE</a></p>')
     return f"""
-  <h2>Anteil Gründer – Rechner (Directors&rsquo; Dealings)</h2>
-  <p class="news-erklaerung">Basis ist der Anteil laut mbb.com
-  ({basis_txt} % mittelbar, Nesemeier/Freimuth, Stand {dd["basis_stand"] or "–"}).
-  Meldet EQS ein neues Directors&rsquo; Dealing der Gründer bzw. ihrer
-  Holdings, liest der Tracker aus der Meldung Preis und Volumen, errechnet
-  daraus die Stückzahl und schlägt kursiv einen neuen Prozentsatz vor
-  (Stückzahl ÷ {de_zahl(dd["gesamt"], 0)} Aktien). Übernommen wird der Wert
-  erst, wenn ein Mensch ihn geprüft, die Website aktualisiert und danach
-  basis_prozent + basis_stand in config.yaml nachgezogen hat – dann leert
-  sich diese Rechnung automatisch.</p>
-  <div class="card status-ok" style="max-width:760px">
-    <div class="felder">
-      <div class="feld"><span class="feld-label">Basis lt. Website (mittelbar)</span><span class="feld-wert">{basis_txt} %</span></div>
-      <div class="feld"><span class="feld-label">Aktien gesamt</span><span class="feld-wert">{de_zahl(dd["gesamt"], 0)}</span></div>
-      {zeilen}
-    </div>
-    {offen_html}
-    {vorschlag}
-    {berichte}
-    <div class="card-fuss">Nach Übernahme auf der Website: basis_prozent und basis_stand in config.yaml aktualisieren.</div>
-  </div>"""
+      <article class="card status-ok" style="background:{stripe} no-repeat left top / 5px 100%, #ffffff">
+        <div class="card-kopf">
+          <h3>Anteil Gründer – Rechner (Directors&rsquo; Dealings)</h3>
+          {badge}
+        </div>
+        <p class="card-url">Rechnet neue EQS-Dealings der Gründer-Holdings auf den Website-Anteil hoch – NEU-Markierung 7 Tage</p>
+        <div class="felder">{zeilen}</div>
+        {offen_html}
+        {vorschlag}
+        {berichte}
+        <div class="card-fuss">Nach Übernahme auf der Website: basis_prozent + basis_stand in config.yaml aktualisieren.</div>
+      </article>"""
 
 
 def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen, news=None, dd=None):
@@ -797,6 +807,11 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     n_alarm = sum(1 for c in checks
                   if (c["web"] and c["web"]["status"] == "abweichung") or
                      (c["ext"] and c["ext"]["status"] == "abweichung"))
+    if dd is not None:
+        mbb_key = "MBB" if "MBB" in gruppen_cards else next(iter(gruppen_cards))
+        gruppen_cards[mbb_key] += render_dd(
+            dd, farben.get(mbb_key, "linear-gradient(to bottom, #1a1a1a, #1a1a1a)"))
+
     pruefpunkte_html = ""
     for gname, inhalt in gruppen_cards.items():
         if not inhalt:
@@ -807,7 +822,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
             f'style="background:{gfarbe}"></span>{gname}</div>\n'
             f'  <div class="grid">{inhalt}\n  </div>\n')
 
-    news_html = render_news(news) + render_dd(dd)
+    news_html = render_news(news)
 
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
