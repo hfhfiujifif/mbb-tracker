@@ -321,6 +321,94 @@ def news_waechter(config, state, fetch=hole_seite):
     return erg
 
 
+# ---------------------------------------------------------------- Anteils-Rechner (Directors' Dealings)
+
+EUR_RE = re.compile(r'(\d{1,3}(?:\.\d{3})*(?:,\d+)?|\d+(?:,\d+)?)\s*EUR')
+
+
+def parse_zahl_de(s):
+    return float(s.replace(".", "").replace(",", "."))
+
+
+def dd_stueckzahl(roh):
+    """Liest aus einer Directors'-Dealings-Meldung die Stückzahl:
+    bevorzugt aus 'Aggregierte Informationen' (Preis, Volumen in EUR),
+    Stückzahl = Volumen / Preis."""
+    text = html_zu_text(roh)
+    pos = text.find("Aggregierte")
+    seg = text[pos:pos + 500] if pos >= 0 else text
+    zahlen = [parse_zahl_de(m.group(1)) for m in EUR_RE.finditer(seg)]
+    if len(zahlen) >= 2 and zahlen[0] > 0:
+        stueck = zahlen[1] / zahlen[0]
+        if stueck >= 1:
+            return round(stueck)
+    return None
+
+
+def dd_rechner(config, state, news, fetch=hole_seite):
+    """Verrechnet neue Directors'-Dealings der Gründer(-Holdings) mit dem
+    Basis-Anteil von der Website zu einem VORSCHLAG für den neuen Anteil.
+    Meldungen bis einschließlich basis_stand gelten als im Website-Wert
+    enthalten. Ändert nie selbst Sollwerte."""
+    conf = config.get("dd_rechner") or {}
+    if not conf.get("aktiv") or news is None:
+        return None
+    personen = conf.get("personen") or []
+    basis_stand = conf.get("basis_stand")
+    if isinstance(basis_stand, str):
+        basis_stand = date.fromisoformat(basis_stand)
+    dd_state = state.setdefault("_dd", {})
+    neu_urls = []
+    for n in news.get("relevant", []):
+        if n["kategorie"] != "directors-dealings":
+            continue
+        if personen and not any(p.lower() in n["titel"].lower()
+                                for p in personen):
+            continue
+        if n["url"] in dd_state:
+            continue
+        eintrag = {"titel": n["titel"], "datum": n["datum"]}
+        d = date.fromisoformat(n["datum"]) if n.get("datum") else None
+        if basis_stand and d and d <= basis_stand:
+            eintrag["status"] = "in_basis"
+        else:
+            roh, fehler = fetch(n["url"])
+            t = n["titel"].lower()
+            richtung = ("kauf" if "kauf" in t else
+                        "verkauf" if "verkauf" in t else None)
+            if richtung is None and roh:
+                dt = html_zu_text(roh).lower()
+                richtung = ("kauf" if " kauf" in dt else
+                            "verkauf" if "verkauf" in dt else None)
+            stueck = dd_stueckzahl(roh) if (roh and not fehler) else None
+            if stueck and richtung:
+                eintrag.update(status="erfasst", stueck=stueck,
+                               richtung=richtung)
+            else:
+                eintrag["status"] = "nicht_ermittelbar"
+            neu_urls.append(n["url"])
+        dd_state[n["url"]] = eintrag
+    beitraege = [{**e, "url": u} for u, e in dd_state.items()
+                 if e.get("status") == "erfasst"]
+    offen = [{**e, "url": u} for u, e in dd_state.items()
+             if e.get("status") == "nicht_ermittelbar"]
+    delta = sum(e["stueck"] * (1 if e["richtung"] == "kauf" else -1)
+                for e in beitraege)
+    gesamt = int(conf.get("aktien_gesamt", 5436169))
+    basis = float(conf.get("basis_prozent", 71.0))
+    return {"basis": basis, "basis_stand": str(conf.get("basis_stand", "")),
+            "gesamt": gesamt, "delta": delta,
+            "vorschlag": basis + delta / gesamt * 100,
+            "beitraege": beitraege, "offen": offen,
+            "neu": neu_urls,
+            "berichte_url": conf.get("berichte_url")}
+
+
+def de_zahl(x, dez=2):
+    s = f"{x:,.{dez}f}"
+    return s.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 # ---------------------------------------------------------------- Statuslogik
 
 def faelligkeit(check, state, termine):
@@ -379,7 +467,7 @@ def collect(config, state, web=None, extern=None):
 # ---------------------------------------------------------------- E-Mail
 
 def build_mail_text(due_checks, due_termine, abweichungen, extern_abw,
-                    news_neu=None):
+                    news_neu=None, dd=None):
     lines = ["Guten Tag,"]
     if news_neu:
         lines += ["", "NEUE KAPITALMARKT-MELDUNG(EN) auf EQS veröffentlicht:"]
@@ -393,6 +481,19 @@ def build_mail_text(due_checks, due_termine, abweichungen, extern_abw,
         lines.append("  Bitte prüfen, ob die Meldung Auswirkungen auf Inhalte")
         lines.append("  der Website hat (z. B. Anteile, Aktionärsstruktur,")
         lines.append("  Rückkaufprogramm) und ggf. Website + config.yaml anpassen.")
+    if dd and dd.get("neu"):
+        lines += ["", "ANTEILS-VORSCHLAG (rechnerisch, bitte prüfen):"]
+        for b in dd["beitraege"]:
+            if b["url"] in dd["neu"]:
+                vz = "+" if b["richtung"] == "kauf" else "-"
+                lines.append(f"  {b['richtung'].capitalize()} von "
+                             f"{de_zahl(b['stueck'], 0)} Aktien "
+                             f"({b.get('datum') or '-'}): {b['url']}")
+        lines.append(f"  Basis lt. Website: {de_zahl(dd['basis'])} % "
+                     f"-> Vorschlag NEU: ca. {de_zahl(dd['vorschlag'])} % "
+                     f"(Delta {dd['delta']:+d} von {de_zahl(dd['gesamt'], 0)} Aktien)")
+        lines.append("  Nach Übernahme auf der Website: basis_prozent und "
+                     "basis_stand in config.yaml aktualisieren.")
     if abweichungen:
         lines += ["", "ACHTUNG – der Website-Abgleich hat Abweichungen gefunden",
                   "(erwartete Angaben stehen nicht mehr auf der mbb.com-Seite):"]
@@ -568,7 +669,65 @@ def render_news(news):
     return fehler_html + tabelle
 
 
-def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen, news=None):
+def render_dd(dd):
+    if dd is None:
+        return ""
+    basis_txt = de_zahl(dd["basis"])
+    zeilen = ""
+    for b in sorted(dd["beitraege"], key=lambda x: x.get("datum") or "", reverse=True):
+        vz = "+" if b["richtung"] == "kauf" else "−"
+        zeilen += (f'<div class="feld"><span class="feld-label">'
+                   f'{b.get("datum") or "–"} · {b["richtung"].capitalize()} · '
+                   f'<a href="{b["url"]}" target="_blank">Meldung</a></span>'
+                   f'<span class="feld-wert">{vz}{de_zahl(b["stueck"], 0)} Aktien</span></div>')
+    offen_html = ""
+    for o in dd["offen"]:
+        offen_html += (f'<p class="web web-warn">Stückzahl nicht automatisch '
+                       f'ermittelbar – bitte <a href="{o["url"]}" target="_blank">'
+                       f'Meldung öffnen</a> ({o.get("datum") or "–"})</p>')
+    if dd["delta"] != 0:
+        vz = "+" if dd["delta"] > 0 else "−"
+        vorschlag = (f'<p class="dd-vorschlag"><em>Vorschlag: {basis_txt} % '
+                     f'{vz} {de_zahl(abs(dd["delta"]), 0)} / '
+                     f'{de_zahl(dd["gesamt"], 0)} Aktien '
+                     f'≈ <strong>{de_zahl(dd["vorschlag"])} %</strong> '
+                     f'(rechnerisch, aus den oben gelisteten Dealings – '
+                     f'kein amtlicher Wert)</em></p>')
+    else:
+        vorschlag = (f'<p class="dd-vorschlag"><em>Kein neuer Vorschlag – '
+                     f'Basis unverändert {basis_txt} % '
+                     f'(keine verrechenbaren Dealings seit '
+                     f'{dd["basis_stand"] or "Basisdatum"})</em></p>')
+    berichte = ""
+    if dd.get("berichte_url"):
+        berichte = (f'<p class="refs">Berichte & Free Float (manuell): '
+                    f'<a href="{dd["berichte_url"]}" target="_blank">'
+                    f'EQS – Berichte MBB SE</a></p>')
+    return f"""
+  <h2>Anteil Gründer – Rechner (Directors&rsquo; Dealings)</h2>
+  <p class="news-erklaerung">Basis ist der Anteil laut mbb.com
+  ({basis_txt} % mittelbar, Nesemeier/Freimuth, Stand {dd["basis_stand"] or "–"}).
+  Meldet EQS ein neues Directors&rsquo; Dealing der Gründer bzw. ihrer
+  Holdings, liest der Tracker aus der Meldung Preis und Volumen, errechnet
+  daraus die Stückzahl und schlägt kursiv einen neuen Prozentsatz vor
+  (Stückzahl ÷ {de_zahl(dd["gesamt"], 0)} Aktien). Übernommen wird der Wert
+  erst, wenn ein Mensch ihn geprüft, die Website aktualisiert und danach
+  basis_prozent + basis_stand in config.yaml nachgezogen hat – dann leert
+  sich diese Rechnung automatisch.</p>
+  <div class="card status-ok" style="max-width:760px">
+    <div class="felder">
+      <div class="feld"><span class="feld-label">Basis lt. Website (mittelbar)</span><span class="feld-wert">{basis_txt} %</span></div>
+      <div class="feld"><span class="feld-label">Aktien gesamt</span><span class="feld-wert">{de_zahl(dd["gesamt"], 0)}</span></div>
+      {zeilen}
+    </div>
+    {offen_html}
+    {vorschlag}
+    {berichte}
+    <div class="card-fuss">Nach Übernahme auf der Website: basis_prozent und basis_stand in config.yaml aktualisieren.</div>
+  </div>"""
+
+
+def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen, news=None, dd=None):
     def fmt(d):
         return d.strftime("%d.%m.%Y")
 
@@ -648,7 +807,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
             f'style="background:{gfarbe}"></span>{gname}</div>\n'
             f'  <div class="grid">{inhalt}\n  </div>\n')
 
-    news_html = render_news(news)
+    news_html = render_news(news) + render_dd(dd)
 
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
@@ -731,6 +890,8 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
   .news-erklaerung {{ font-size: 13px; color: var(--muted); max-width: 900px;
                       margin: 0 0 16px; }}
   .news-leer {{ font-size: 13px; color: var(--muted); }}
+  .dd-vorschlag {{ font-size: 14px; margin: 12px 0 0; padding: 8px 12px;
+                   background: var(--due-bg); }}
   .refs {{ font-size: 12px; color: var(--muted); margin: 8px 0 0; }}
   .refs a {{ color: var(--ink); }}
   .hinweis {{ color: var(--over); font-size: 12px; margin: 8px 0 0; }}
@@ -813,12 +974,12 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
 </html>"""
 
 
-def write_dashboard(config, state, web=None, extern=None, news=None):
+def write_dashboard(config, state, web=None, extern=None, news=None, dd=None):
     checks, termine, vorlauf = collect(config, state, web, extern)
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
     ext_aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
     gruppen = config.get("gruppen") or [{"name": "MBB", "farbe": "#1a1a1a"}]
-    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen, news)
+    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen, news, dd)
     DASHBOARD_FILE.write_text(html, encoding="utf-8")
     INDEX_FILE.write_text(html, encoding="utf-8")
     print(f"Dashboard aktualisiert: {DASHBOARD_FILE} (+ index.html)")
@@ -832,7 +993,8 @@ def cmd_run():
     web = website_abgleich(config)
     extern = extern_abgleich(config)
     news = news_waechter(config, state)
-    save_state(state)   # neue Meldungen im Bestand sichern
+    dd = dd_rechner(config, state, news)
+    save_state(state)   # neue Meldungen/Dealings im Bestand sichern
     checks, termine, vorlauf = collect(config, state, web, extern)
     due_checks = [c for c in checks if c["status"] in ("fällig", "überfällig")]
     due_termine = [t for t in termine if t["status"] == "steht an"]
@@ -843,7 +1005,7 @@ def cmd_run():
     news_neu = (news or {}).get("neu", []) if news else []
     if due_checks or due_termine or abweichungen or extern_abw or news_neu:
         text = build_mail_text(due_checks, due_termine, abweichungen,
-                               extern_abw, news_neu)
+                               extern_abw, news_neu, dd)
         send_mail(config, text, len(due_checks) + len(due_termine)
                   + len(abweichungen) + len(extern_abw) + len(news_neu))
     else:
@@ -855,7 +1017,7 @@ def cmd_run():
         if c["ext"] and c["ext"]["status"] in ("fehler", "nicht_auswertbar"):
             print(f"Warnung: externer Abgleich für {c['id']} nicht möglich "
                   f"({c['ext'].get('fehler', 'kein Prozentwert gefunden')})")
-    write_dashboard(config, state, web, extern, news)
+    write_dashboard(config, state, web, extern, news, dd)
 
 
 def cmd_confirm(check_id):
@@ -871,9 +1033,10 @@ def cmd_confirm(check_id):
     save_state(state)
     print(f"'{check_id}' als geprüft bestätigt ({date.today().strftime('%d.%m.%Y')}).")
     news = news_waechter(config, state)
+    dd = dd_rechner(config, state, news)
     save_state(state)
     write_dashboard(config, state, website_abgleich(config),
-                    extern_abgleich(config), news)
+                    extern_abgleich(config), news, dd)
 
 
 def cmd_list():
@@ -906,9 +1069,10 @@ def cmd_dashboard():
     config = load_config()
     state = ensure_state(config, load_state())
     news = news_waechter(config, state)
+    dd = dd_rechner(config, state, news)
     save_state(state)
     write_dashboard(config, state, website_abgleich(config),
-                    extern_abgleich(config), news)
+                    extern_abgleich(config), news, dd)
 
 
 if __name__ == "__main__":
