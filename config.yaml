@@ -46,6 +46,31 @@ gruppen:
     farbe: "#F37320"      # obere Hälfte
     farbe2: "#0A314D"     # untere Hälfte
 
+# Meldungs-Wächter: überwacht EQS-Veröffentlichungen der MBB SE.
+# Alarm bei neuen Meldungen, deren Kategorie (aus der EQS-URL) oder
+# Titel-Stichwort passt. Abschalten: aktiv: false
+news_waechter:
+  aktiv: true
+  quellen:
+    - name: "EQS – MBB SE"
+      url: "https://www.eqs-news.com/de/company/mbb-se/news/5b80158b-ea7c-11e8-902f-2c44fd856d8c"
+  kategorien:
+    - directors-dealings
+    - stimmrechtsanteile
+    - gesamtstimmrechte
+    - ad-hoc
+  stichwoerter:
+    - "Nesemeier"
+    - "Freimuth"
+    - "Aktienrückkauf"
+    - "Rückkaufprogramm"
+    - "Aumann"
+    - "Vorwerk"
+    - "Delignit"
+    - "DTS"
+    - "Hanke"
+    - "Formpolster"
+
 erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
 
