@@ -70,6 +70,9 @@
   .fundstelle { font-size: 12px; color: var(--ink); background: var(--panel);
                  padding: 6px 10px; margin: 10px 0 0; }
   .fundstelle a { color: var(--red); }
+  .news-erklaerung { font-size: 13px; color: var(--muted); max-width: 900px;
+                      margin: 0 0 16px; }
+  .news-leer { font-size: 13px; color: var(--muted); }
   .refs { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
   .refs a { color: var(--ink); }
   .hinweis { color: var(--over); font-size: 12px; margin: 8px 0 0; }
@@ -207,7 +210,7 @@
         
         <div class="card-meta">
           <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>20.07.2026</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>17.07.2026</div>
           <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
         </div>
         <div class="card-fuss">Bestätigen: <code>zahlenwerk</code></div>
@@ -262,7 +265,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">47,81 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/aumann.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
+        <p class="web web-ok">Externer Abgleich: 47.8 % (erwartet 47.81 %) – im Rahmen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/" target="_blank">MarketScreener (Aumann-Aktionäre)</a></p>
         
         <div class="card-meta">
@@ -303,7 +306,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">44,26 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/friedrich-vorwerk.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
+        <p class="web web-ok">Externer Abgleich: 44.2 % (erwartet 44.26 %) – im Rahmen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/" target="_blank">MarketScreener (Vorwerk-Aktionäre)</a></p>
         
         <div class="card-meta">
@@ -385,7 +388,7 @@
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">56,11 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/delignit.html" target="_blank">Seite öffnen</a></p>
         <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        <p class="web web-warn">Externer Abgleich: Quelle nicht erreichbar (ggf. Bot-Schutz) – manuell über Link prüfen</p>
+        <p class="web web-ok">Externer Abgleich: 56.1 % (erwartet 56.11 %) – im Rahmen</p>
         <p class="refs">Vergleichsquellen (manuell): <a href="https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/" target="_blank">MarketScreener (Delignit)</a></p>
         
         <div class="card-meta">
@@ -516,6 +519,47 @@
           <td class="t-datum">31.12.2026</td>
           <td>Geschäftsjahresende</td>
           <td class="t-status"><span class="badge badge-ok">geplant</span></td>
+        </tr>
+    </tbody>
+  </table>
+
+  <h2>Meldungs-Wächter (EQS)</h2>
+  <p class="news-erklaerung">So funktioniert dieser Abschnitt: Der Tracker ruft
+  bei jedem Lauf die EQS-News-Übersicht der MBB SE ab und merkt sich alle
+  relevanten Meldungen (Kategorien wie Directors&rsquo; Dealings, Stimmrechte,
+  Ad-hoc sowie Stichwörter wie Nesemeier, Freimuth, Aktienrückkauf oder
+  Töchternamen). Erscheint eine neue relevante Meldung – z. B. ein Kauf oder
+  Verkauf der Gründer über ihre Holdings oder eine Änderung der MBB-Anteile an
+  den Töchtern –, wird sofort eine E-Mail verschickt und die Meldung hier
+  7 Tage als NEU markiert. Der Wächter ändert keine Werte selbst: Ein Mensch
+  liest die Meldung und passt bei Bedarf die Website und die Sollwerte in
+  config.yaml an. Beim allerersten Lauf werden vorhandene Meldungen nur als
+  Ausgangsbestand gespeichert, ohne Alarm.</p>
+  <table>
+    <tbody>
+        <tr>
+          <td class="t-datum">2026-07-22</td>
+          <td>ad-hoc</td>
+          <td><a href="https://www.eqs-news.com/de/news/ad-hoc/mbb-se-steigert-bereinigtes-ebitda/0c44f006-65f4_de" target="_blank">Ad-hoc MBB SE steigert bereinigtes EBITDA im zweiten Quartal um 62 % auf 75 Mio. € und erhöht Ergebnisprognose</a></td>
+          <td class="t-status"><span class="badge badge-past">gesehen</span></td>
+        </tr>
+        <tr>
+          <td class="t-datum">2026-07-13</td>
+          <td>directors-dealings</td>
+          <td><a href="https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/20992343-cf00_de" target="_blank">Directors' Dealings MBB SE: MBB Capital Management GmbH, Kauf</a></td>
+          <td class="t-status"><span class="badge badge-past">gesehen</span></td>
+        </tr>
+        <tr>
+          <td class="t-datum">2026-04-13</td>
+          <td>ad-hoc</td>
+          <td><a href="https://www.eqs-news.com/de/news/ad-hoc/mbb-se-erhoeht-aktienrueckkaufprogramm/b9d19bb4_de" target="_blank">Ad-hoc MBB SE erhöht Aktienrückkaufprogramm 2025 auf 25 Mio. € und verlängert Laufzeit</a></td>
+          <td class="t-status"><span class="badge badge-past">gesehen</span></td>
+        </tr>
+        <tr>
+          <td class="t-datum">2026-03-04</td>
+          <td>stimmrechtsanteile</td>
+          <td><a href="https://www.eqs-news.com/de/news/stimmrechtsanteile/mbb-se-veroeffentlichung-eigener-aktien/47f16bab_de" target="_blank">Stimmrechtsanteile MBB SE Veröffentlichung über Erwerb oder Veräußerung eigener Aktien nach § 40 Abs. 1 WpHG</a></td>
+          <td class="t-status"><span class="badge badge-past">gesehen</span></td>
         </tr>
     </tbody>
   </table>
