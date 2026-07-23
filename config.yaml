@@ -71,6 +71,20 @@ news_waechter:
     - "Hanke"
     - "Formpolster"
 
+# Anteils-Rechner: verrechnet neue Directors' Dealings der Gründer(-Holdings)
+# mit dem Basis-Anteil von der Website zu einem kursiven VORSCHLAG.
+# Nach Übernahme auf der Website: basis_prozent + basis_stand aktualisieren.
+dd_rechner:
+  aktiv: true
+  basis_prozent: 71.0        # Anteil lt. mbb.com (mittelbar, Gründer gesamt)
+  basis_stand: 2026-07-21    # Dealings bis einschl. dieses Datums gelten als enthalten
+  aktien_gesamt: 5436169
+  personen:                  # Meldepflichtige, die zum Gründeranteil zählen
+    - "MBB Capital Management"
+    - "Nesemeier"
+    - "Freimuth"
+  berichte_url: "https://www.eqs-news.com/de/company/mbb-se/berichte/5b80158b-ea7c-11e8-902f-2c44fd856d8c"
+
 erinnerung:
   vorlauf_tage: 14      # so viele Tage vor Fälligkeit beginnt die Erinnerung
 
