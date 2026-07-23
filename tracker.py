@@ -230,6 +230,97 @@ def extern_abgleich(config, fetch=hole_seite):
     return ergebnisse
 
 
+# ---------------------------------------------------------------- Meldungs-Wächter (EQS)
+
+MONATE = {"Januar": 1, "Februar": 2, "März": 3, "April": 4, "Mai": 5,
+          "Juni": 6, "Juli": 7, "August": 8, "September": 9,
+          "Oktober": 10, "November": 11, "Dezember": 12}
+NEWS_LINK_RE = re.compile(
+    r'href="(https://www\.eqs-news\.com/de/news/([^/"]+)/[^"]+)"[^>]*>(.*?)</a>',
+    re.S)
+NEWS_DATUM_RE = re.compile(
+    r'(\d{1,2})\.?\s+(Januar|Februar|März|April|Mai|Juni|Juli|August|'
+    r'September|Oktober|November|Dezember)\s+(\d{4})')
+
+
+def saeubere_titel(t):
+    t = re.sub(r"<[^>]+>", " ", t)
+    t = normalisiere(t).strip()
+    t = re.sub(r"^\d{1,2}:\d{2}\s+", "", t)   # führende Uhrzeit entfernen
+    return t[:220]
+
+
+def news_extrahieren(roh):
+    """Liest Meldungen (URL, Kategorie, Titel, Datum) aus der EQS-Seite.
+    Datumszeilen stehen im Dokument vor den zugehörigen Meldungen."""
+    ereignisse = []
+    for m in NEWS_DATUM_RE.finditer(roh):
+        try:
+            d = date(int(m.group(3)), MONATE[m.group(2)], int(m.group(1)))
+            ereignisse.append((m.start(), "datum", d))
+        except ValueError:
+            pass
+    for m in NEWS_LINK_RE.finditer(roh):
+        ereignisse.append((m.start(), "link",
+                           (m.group(1), m.group(2), saeubere_titel(m.group(3)))))
+    ereignisse.sort(key=lambda x: x[0])
+    items, aktuelles_datum = [], None
+    for _, art, wert in ereignisse:
+        if art == "datum":
+            aktuelles_datum = wert
+        else:
+            url, kategorie, titel = wert
+            items.append({"url": url, "kategorie": kategorie, "titel": titel,
+                          "datum": aktuelles_datum.isoformat()
+                          if aktuelles_datum else None})
+    return items
+
+
+def news_relevant(item, kategorien, stichwoerter):
+    if item["kategorie"] in kategorien:
+        return True
+    t = item["titel"].lower()
+    return any(s.lower() in t for s in stichwoerter)
+
+
+def news_waechter(config, state, fetch=hole_seite):
+    """Vergleicht die EQS-Meldungslisten mit dem gemerkten Bestand in
+    state.json. Liefert None (abgeschaltet) oder dict mit 'relevant'
+    (alle passenden Meldungen), 'neu' (erstmals gesehene) und 'fehler'.
+    Beim allerersten Lauf einer Quelle wird nur der Ausgangsbestand
+    gespeichert (kein Alarm)."""
+    conf = config.get("news_waechter") or {}
+    if not conf.get("aktiv"):
+        return None
+    kategorien = conf.get("kategorien") or []
+    stichwoerter = conf.get("stichwoerter") or []
+    gesehen = state.setdefault("_news", {})
+    erg = {"relevant": [], "neu": [], "fehler": []}
+    for q in conf.get("quellen", []):
+        roh, fehler = fetch(q["url"])
+        if fehler:
+            erg["fehler"].append({"quelle": q["name"], "fehler": fehler})
+            continue
+        items = news_extrahieren(roh)
+        baseline = not any(v.get("quelle") == q["name"]
+                           for v in gesehen.values())
+        for it in items:
+            if not news_relevant(it, kategorien, stichwoerter):
+                continue
+            eintrag = {**it, "quelle": q["name"]}
+            erg["relevant"].append(eintrag)
+            if it["url"] not in gesehen:
+                gesehen[it["url"]] = {"titel": it["titel"],
+                                      "kategorie": it["kategorie"],
+                                      "datum": it["datum"],
+                                      "quelle": q["name"],
+                                      "erstmals": date.today().isoformat(),
+                                      "baseline": baseline}
+                if not baseline:
+                    erg["neu"].append(eintrag)
+    return erg
+
+
 # ---------------------------------------------------------------- Statuslogik
 
 def faelligkeit(check, state, termine):
@@ -287,8 +378,21 @@ def collect(config, state, web=None, extern=None):
 
 # ---------------------------------------------------------------- E-Mail
 
-def build_mail_text(due_checks, due_termine, abweichungen, extern_abw):
+def build_mail_text(due_checks, due_termine, abweichungen, extern_abw,
+                    news_neu=None):
     lines = ["Guten Tag,"]
+    if news_neu:
+        lines += ["", "NEUE KAPITALMARKT-MELDUNG(EN) auf EQS veröffentlicht:"]
+        for n in news_neu:
+            lines.append("")
+            lines.append(f"• [{n['kategorie']}] {n['titel']}")
+            if n.get("datum"):
+                lines.append(f"  Datum: {n['datum']}")
+            lines.append(f"  Meldung: {n['url']}")
+        lines.append("")
+        lines.append("  Bitte prüfen, ob die Meldung Auswirkungen auf Inhalte")
+        lines.append("  der Website hat (z. B. Anteile, Aktionärsstruktur,")
+        lines.append("  Rückkaufprogramm) und ggf. Website + config.yaml anpassen.")
     if abweichungen:
         lines += ["", "ACHTUNG – der Website-Abgleich hat Abweichungen gefunden",
                   "(erwartete Angaben stehen nicht mehr auf der mbb.com-Seite):"]
@@ -432,7 +536,39 @@ def render_referenzen(refs):
     return f'<p class="refs">Vergleichsquellen (manuell): {links}</p>'
 
 
-def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen):
+def render_news(news):
+    if news is None:
+        return '  <p class="news-leer">Der Meldungs-Wächter ist abgeschaltet (news_waechter.aktiv in config.yaml).</p>'
+    zeilen = ""
+    heute = date.today()
+    neu_urls = {n["url"] for n in news.get("neu", [])}
+    # neueste zuerst, maximal 12
+    def sortdatum(n):
+        return n.get("datum") or "0000-00-00"
+    for n in sorted(news.get("relevant", []), key=sortdatum, reverse=True)[:12]:
+        ist_neu = n["url"] in neu_urls
+        badge = ('<span class="badge badge-over">NEU</span>' if ist_neu
+                 else '<span class="badge badge-past">gesehen</span>')
+        datum = n.get("datum") or "–"
+        zeilen += f"""
+        <tr>
+          <td class="t-datum">{datum}</td>
+          <td>{n['kategorie']}</td>
+          <td><a href="{n['url']}" target="_blank">{n['titel']}</a></td>
+          <td class="t-status">{badge}</td>
+        </tr>"""
+    fehler_html = ""
+    for f in news.get("fehler", []):
+        fehler_html += (f'  <p class="web web-warn">Quelle „{f["quelle"]}" '
+                        f'nicht erreichbar – nächster Versuch beim nächsten Lauf.</p>\n')
+    if not zeilen and not fehler_html:
+        return '  <p class="news-leer">Keine relevanten Meldungen im Bestand.</p>'
+    tabelle = (f'  <table>\n    <tbody>{zeilen}\n    </tbody>\n  </table>'
+               if zeilen else "")
+    return fehler_html + tabelle
+
+
+def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gruppen, news=None):
     def fmt(d):
         return d.strftime("%d.%m.%Y")
 
@@ -512,6 +648,8 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
             f'style="background:{gfarbe}"></span>{gname}</div>\n'
             f'  <div class="grid">{inhalt}\n  </div>\n')
 
+    news_html = render_news(news)
+
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
                 else "Website-Abgleich abgeschaltet")
@@ -590,6 +728,9 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
   .fundstelle {{ font-size: 12px; color: var(--ink); background: var(--panel);
                  padding: 6px 10px; margin: 10px 0 0; }}
   .fundstelle a {{ color: var(--red); }}
+  .news-erklaerung {{ font-size: 13px; color: var(--muted); max-width: 900px;
+                      margin: 0 0 16px; }}
+  .news-leer {{ font-size: 13px; color: var(--muted); }}
   .refs {{ font-size: 12px; color: var(--muted); margin: 8px 0 0; }}
   .refs a {{ color: var(--ink); }}
   .hinweis {{ color: var(--over); font-size: 12px; margin: 8px 0 0; }}
@@ -643,6 +784,20 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     </tbody>
   </table>
 
+  <h2>Meldungs-Wächter (EQS)</h2>
+  <p class="news-erklaerung">So funktioniert dieser Abschnitt: Der Tracker ruft
+  bei jedem Lauf die EQS-News-Übersicht der MBB SE ab und merkt sich alle
+  relevanten Meldungen (Kategorien wie Directors&rsquo; Dealings, Stimmrechte,
+  Ad-hoc sowie Stichwörter wie Nesemeier, Freimuth, Aktienrückkauf oder
+  Töchternamen). Erscheint eine neue relevante Meldung – z. B. ein Kauf oder
+  Verkauf der Gründer über ihre Holdings oder eine Änderung der MBB-Anteile an
+  den Töchtern –, wird sofort eine E-Mail verschickt und die Meldung hier
+  7 Tage als NEU markiert. Der Wächter ändert keine Werte selbst: Ein Mensch
+  liest die Meldung und passt bei Bedarf die Website und die Sollwerte in
+  config.yaml an. Beim allerersten Lauf werden vorhandene Meldungen nur als
+  Ausgangsbestand gespeichert, ohne Alarm.</p>
+{news_html}
+
   <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
     nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
     letzten Bestätigung. Der Website-Abgleich prüft, ob die hinterlegten
@@ -658,12 +813,12 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
 </html>"""
 
 
-def write_dashboard(config, state, web=None, extern=None):
+def write_dashboard(config, state, web=None, extern=None, news=None):
     checks, termine, vorlauf = collect(config, state, web, extern)
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
     ext_aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
     gruppen = config.get("gruppen") or [{"name": "MBB", "farbe": "#1a1a1a"}]
-    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen)
+    html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen, news)
     DASHBOARD_FILE.write_text(html, encoding="utf-8")
     INDEX_FILE.write_text(html, encoding="utf-8")
     print(f"Dashboard aktualisiert: {DASHBOARD_FILE} (+ index.html)")
@@ -676,6 +831,8 @@ def cmd_run():
     state = ensure_state(config, load_state())
     web = website_abgleich(config)
     extern = extern_abgleich(config)
+    news = news_waechter(config, state)
+    save_state(state)   # neue Meldungen im Bestand sichern
     checks, termine, vorlauf = collect(config, state, web, extern)
     due_checks = [c for c in checks if c["status"] in ("fällig", "überfällig")]
     due_termine = [t for t in termine if t["status"] == "steht an"]
@@ -683,10 +840,12 @@ def cmd_run():
                     if c["web"] and c["web"]["status"] == "abweichung"]
     extern_abw = [c for c in checks
                   if c["ext"] and c["ext"]["status"] == "abweichung"]
-    if due_checks or due_termine or abweichungen or extern_abw:
-        text = build_mail_text(due_checks, due_termine, abweichungen, extern_abw)
+    news_neu = (news or {}).get("neu", []) if news else []
+    if due_checks or due_termine or abweichungen or extern_abw or news_neu:
+        text = build_mail_text(due_checks, due_termine, abweichungen,
+                               extern_abw, news_neu)
         send_mail(config, text, len(due_checks) + len(due_termine)
-                  + len(abweichungen) + len(extern_abw))
+                  + len(abweichungen) + len(extern_abw) + len(news_neu))
     else:
         print("Nichts fällig, keine Abweichungen – keine Erinnerung nötig.")
     for c in checks:
@@ -696,7 +855,7 @@ def cmd_run():
         if c["ext"] and c["ext"]["status"] in ("fehler", "nicht_auswertbar"):
             print(f"Warnung: externer Abgleich für {c['id']} nicht möglich "
                   f"({c['ext'].get('fehler', 'kein Prozentwert gefunden')})")
-    write_dashboard(config, state, web, extern)
+    write_dashboard(config, state, web, extern, news)
 
 
 def cmd_confirm(check_id):
@@ -711,8 +870,10 @@ def cmd_confirm(check_id):
     state[check_id]["zuletzt_bestaetigt"] = date.today().isoformat()
     save_state(state)
     print(f"'{check_id}' als geprüft bestätigt ({date.today().strftime('%d.%m.%Y')}).")
+    news = news_waechter(config, state)
+    save_state(state)
     write_dashboard(config, state, website_abgleich(config),
-                    extern_abgleich(config))
+                    extern_abgleich(config), news)
 
 
 def cmd_list():
@@ -744,8 +905,10 @@ def cmd_list():
 def cmd_dashboard():
     config = load_config()
     state = ensure_state(config, load_state())
+    news = news_waechter(config, state)
+    save_state(state)
     write_dashboard(config, state, website_abgleich(config),
-                    extern_abgleich(config))
+                    extern_abgleich(config), news)
 
 
 if __name__ == "__main__":
