@@ -885,8 +885,9 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
                 else "Website-Abgleich abgeschaltet")
-    info.append("externer Abgleich aktiv" if extern_aktiv
-                else "externer Abgleich abgeschaltet")
+    if extern_aktiv is not None:
+        info.append("externer Abgleich aktiv" if extern_aktiv
+                    else "externer Abgleich abgeschaltet")
 
     return f"""<!DOCTYPE html>
 <html lang="de">
@@ -1001,6 +1002,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: {date.today().strftime('%d.%m.%Y')} · Erinnerung ab {vorlauf} Tagen vor Fälligkeit · {' · '.join(info)}</p>
   </div>
 </header>
+<div id="stale-warnung" style="display:none;background:#fbe6e7;color:#b3121b;padding:10px 36px;font-size:14px;font-weight:500;"></div>
 <main>
   <div class="summary">
     <div class="sum over"><div class="num">{n_alarm}</div><div class="lbl">Abweichungen</div></div>
@@ -1023,14 +1025,23 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
   <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
     nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
     letzten Bestätigung. Der Website-Abgleich prüft, ob die hinterlegten
-    Prüfwerte noch auf der jeweiligen mbb.com-Seite stehen. Der externe
-    Abgleich liest den MBB-Anteil bei externen Quellen (z. B. MarketScreener)
-    aus und vergleicht innerhalb einer Toleranz; externe Portale runden anders
-    und können automatisierte Abrufe blockieren – dann gilt der manuelle
-    Vergleich über die Links. Erledigte Prüfungen bestätigen: Datum in
+    Prüfwerte noch auf der jeweiligen mbb.com-Seite stehen. Erledigte Prüfungen bestätigen: Datum in
     <code>state.json</code> auf heute setzen oder
     <code>python tracker.py confirm &lt;id&gt;</code>.</footer>
 </main>
+<script>
+(function() {{
+  var stand = "{date.today().isoformat()}";
+  var diff = Math.floor((Date.now() - new Date(stand + "T12:00:00")) / 86400000);
+  if (diff >= 2) {{
+    var el = document.getElementById("stale-warnung");
+    el.textContent = "Achtung: Dieses Dashboard wurde seit " + diff +
+      " Tagen nicht aktualisiert. Bitte auf GitHub unter Actions prüfen, " +
+      "ob der tägliche Lauf fehlschlägt.";
+    el.style.display = "block";
+  }}
+}})();
+</script>
 </body>
 </html>"""
 
@@ -1038,7 +1049,8 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
 def write_dashboard(config, state, web=None, extern=None, news=None, dd=None):
     checks, termine, vorlauf = collect(config, state, web, extern)
     aktiv = config.get("website_abgleich", {}).get("aktiv", False)
-    ext_aktiv = config.get("extern_abgleich", {}).get("aktiv", False)
+    ext_conf = config.get("extern_abgleich")
+    ext_aktiv = ext_conf.get("aktiv", False) if ext_conf else None
     gruppen = config.get("gruppen") or [{"name": "MBB", "farbe": "#1a1a1a"}]
     html = render_dashboard(checks, termine, vorlauf, aktiv, ext_aktiv, gruppen, news, dd)
     DASHBOARD_FILE.write_text(html, encoding="utf-8")
