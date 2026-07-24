@@ -292,7 +292,7 @@ def news_extrahieren(roh):
 def news_relevant(item, kategorien, stichwoerter):
     if item["kategorie"] in kategorien:
         return True
-    t = item["titel"].lower()
+    t = item["titel"].lower() + " " + item["url"].lower()
     return any(s.lower() in t for s in stichwoerter)
 
 
@@ -310,6 +310,8 @@ def news_waechter(config, state, fetch=hole_seite):
     gesehen = state.setdefault("_news", {})
     erg = {"relevant": [], "neu": [], "fehler": []}
     for q in conf.get("quellen", []):
+        q_kategorien = q.get("kategorien", kategorien)
+        q_stichwoerter = q.get("stichwoerter", stichwoerter)
         roh, fehler = fetch(q["url"])
         if fehler:
             erg["fehler"].append({"quelle": q["name"], "fehler": fehler})
@@ -318,7 +320,7 @@ def news_waechter(config, state, fetch=hole_seite):
         baseline = not any(v.get("quelle") == q["name"]
                            for v in gesehen.values())
         for it in items:
-            if not news_relevant(it, kategorien, stichwoerter):
+            if not news_relevant(it, q_kategorien, q_stichwoerter):
                 continue
             eintrag = {**it, "quelle": q["name"]}
             erg["relevant"].append(eintrag)
@@ -400,9 +402,12 @@ def dd_rechner(config, state, news, fetch=hole_seite):
 
     # --- Dealings erfassen ---
     neu_urls = []
+    nur_quelle = conf.get("quelle")   # z. B. "EQS – MBB SE"
     for n in news.get("relevant", []):
         if n["kategorie"] != "directors-dealings":
             continue
+        if nur_quelle and n.get("quelle") != nur_quelle:
+            continue   # Dealings bei Töchtern betreffen nicht den MBB-Anteil
         if personen and not any(p.lower() in n["titel"].lower()
                                 for p in personen):
             continue
