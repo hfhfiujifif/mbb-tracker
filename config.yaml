@@ -54,6 +54,12 @@ news_waechter:
   quellen:
     - name: "EQS – MBB SE"
       url: "https://www.eqs-news.com/de/company/mbb-se/news/5b80158b-ea7c-11e8-902f-2c44fd856d8c"
+    - name: "EQS – Friedrich Vorwerk"
+      url: "https://www.eqs-news.com/de/company/friedrich-vorwerk-group-se/news/e301606d-77ad-1015-a120-234e05d60f5f"
+    - name: "EQS – Delignit"
+      url: "https://www.eqs-news.com/de/company/delignit-ag/news/5b82f122-ea7c-11e8-902f-2c44fd856d8c"
+    - name: "EQS – Aumann"
+      url: "https://www.eqs-news.com/de/company/aumann-ag/news/5c3b20ea-ea7c-11e8-902f-2c44fd856d8c"
   kategorien:
     - directors-dealings
     - stimmrechtsanteile
@@ -92,8 +98,6 @@ erinnerung:
 website_abgleich:
   aktiv: true           # false = mbb.com-Crawler abschalten (Rückbau-Schalter)
 
-extern_abgleich:
-  aktiv: true           # false = externen Abgleich (MarketScreener) abschalten
 
 checks:
   # ---------- Die Aktie (quartalsweise) ----------
@@ -110,8 +114,6 @@ checks:
       - "5.436.169"
       - "71 %"
     referenzen:
-      - titel: "MarketScreener (Aktionäre)"
-        url: "https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/"
       - titel: "Bundesanzeiger (Stimmrechtsmitteilungen)"
         url: "https://www.bundesanzeiger.de"
 
@@ -126,9 +128,6 @@ checks:
     pruefwerte:
       - "Streubesitz"
       - "29 %"
-    referenzen:
-      - titel: "MarketScreener (Free Float, andere Methodik)"
-        url: "https://www.marketscreener.com/quote/stock/MBB-SE-184899201/company-shareholders/"
 
   - id: aktie-analysten
     titel: "Analysten-Liste"
@@ -231,14 +230,6 @@ checks:
       - "MBB Anteil: 47,81 %"
     pruefwerte:
       - "47,81 %"
-    extern:
-      url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
-      suchbegriff: "MBB"
-      erwartet: 47.81
-      toleranz: 0.5
-    referenzen:
-      - titel: "MarketScreener (Aumann-Aktionäre)"
-        url: "https://www.marketscreener.com/quote/stock/AUMANN-AG-34399316/company-shareholders/"
 
   - id: vorwerk-anteil
     gruppe: "Vorwerk"
@@ -250,14 +241,6 @@ checks:
       - "MBB Anteil: 44,26 %"
     pruefwerte:
       - "44,26 %"
-    extern:
-      url: "https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/"
-      suchbegriff: "MBB"
-      erwartet: 44.26
-      toleranz: 0.5
-    referenzen:
-      - titel: "MarketScreener (Vorwerk-Aktionäre)"
-        url: "https://www.marketscreener.com/quote/stock/FRIEDRICH-VORWERK-GROUP-S-120380189/company-shareholders/"
 
   - id: dts-anteil
     gruppe: "DTS IT"
@@ -280,14 +263,6 @@ checks:
       - "MBB Anteil: 56,11 %"
     pruefwerte:
       - "56,11 %"
-    extern:
-      url: "https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/"
-      suchbegriff: "MBB"
-      erwartet: 56.11
-      toleranz: 0.5
-    referenzen:
-      - titel: "MarketScreener (Delignit)"
-        url: "https://de.marketscreener.com/kurs/aktie/DELIGNIT-AG-671628/"
 
   - id: hanke-anteil
     gruppe: "Hanke Tissue"
