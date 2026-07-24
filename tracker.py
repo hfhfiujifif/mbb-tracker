@@ -230,7 +230,7 @@ def extern_abgleich(config, fetch=hole_seite):
     return ergebnisse
 
 
-# ---------------------------------------------------------------- Meldungs-Wächter (EQS)
+# ---------------------------------------------------------------- Meldungs-Checker (EQS)
 
 MONATE = {"Januar": 1, "Februar": 2, "März": 3, "April": 4, "Mai": 5,
           "Juni": 6, "Juli": 7, "August": 8, "September": 9,
@@ -641,7 +641,7 @@ def render_referenzen(refs):
     return f'<p class="refs">Vergleichsquellen (manuell): {links}</p>'
 
 
-NEWS_ERKLAERUNG = """  <h2>Meldungs-Wächter (EQS)</h2>
+NEWS_ERKLAERUNG = """  <h2>Meldungs-Checker (EQS)</h2>
   <p class="news-erklaerung">So funktioniert dieser Abschnitt: Der Tracker ruft
   bei jedem Lauf die EQS-News-Übersicht der MBB SE ab und merkt sich alle
   relevanten Meldungen (Kategorien wie Directors&rsquo; Dealings, Stimmrechte,
@@ -657,7 +657,7 @@ NEWS_ERKLAERUNG = """  <h2>Meldungs-Wächter (EQS)</h2>
 
 def render_news(news):
     if news is None:
-        return '  <p class="news-leer">Der Meldungs-Wächter ist abgeschaltet (news_waechter.aktiv in config.yaml).</p>'
+        return '  <p class="news-leer">Der Meldungs-Checker ist abgeschaltet (news_waechter.aktiv in config.yaml).</p>'
     zeilen = ""
     heute = date.today()
     neu_urls = {n["url"] for n in news.get("neu", [])}
