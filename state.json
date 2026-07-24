@@ -96,5 +96,9 @@
       "datum": "2026-07-13",
       "status": "in_basis"
     }
+  },
+  "_dd_basis": {
+    "wert": 71.0,
+    "seit": "2026-07-24"
   }
 }
