@@ -35,6 +35,7 @@ SMTP als Umgebungsvariablen: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
 """
 
 import html as html_mod
+import unicodedata
 import json
 import os
 import re
@@ -243,11 +244,20 @@ NEWS_DATUM_RE = re.compile(
     r'September|Oktober|November|Dezember)\s+(\d{4})')
 
 
+ERLAUBTE_SYMBOLE = set("€$£%°§+=<>|~^*&#@/\\")
+
+
+def zeichen_ok(ch):
+    if ch in ERLAUBTE_SYMBOLE:
+        return True
+    kat = unicodedata.category(ch)
+    return kat[0] in ("L", "N", "P") or kat == "Zs"
+
+
 def saeubere_titel(t):
     t = re.sub(r"<[^>]+>", " ", t)
-    # Icon-/Steuerzeichen entfernen (Private-Use-Area, Zero-Width u. ä.),
-    # die als leere Rechtecke ("Tofu") dargestellt würden
-    t = re.sub(r"[\ue000-\uf8ff\u200b-\u200f\ufeff\ufffc\ufffd]", "", t)
+    t = html_mod.unescape(t)
+    t = "".join(ch for ch in t if zeichen_ok(ch))   # nur Buchstaben/Zahlen/Satzzeichen
     t = normalisiere(t).strip()
     t = re.sub(r"^\d{1,2}:\d{2}\s+", "", t)   # führende Uhrzeit entfernen
     return t[:220]
@@ -349,18 +359,46 @@ def dd_stueckzahl(roh):
 
 
 def dd_rechner(config, state, news, fetch=hole_seite):
-    """Verrechnet neue Directors'-Dealings der Gründer(-Holdings) mit dem
-    Basis-Anteil von der Website zu einem VORSCHLAG für den neuen Anteil.
-    Meldungen bis einschließlich basis_stand gelten als im Website-Wert
-    enthalten. Ändert nie selbst Sollwerte."""
+    """Verrechnet neue Directors'-Dealings der Gründer(-Holdings) mit der
+    Basis von der Website zu einem VORSCHLAG. Die Basis wird automatisch
+    aus der Aktie-Seite gelesen ("mittelbar zu X %"); ändert sie sich dort,
+    setzt sich die Rechnung selbst zurück (alte Dealings gelten als
+    verrechnet). Manuelle Pflege ist nicht mehr nötig."""
     conf = config.get("dd_rechner") or {}
     if not conf.get("aktiv") or news is None:
         return None
     personen = conf.get("personen") or []
-    basis_stand = conf.get("basis_stand")
-    if isinstance(basis_stand, str):
-        basis_stand = date.fromisoformat(basis_stand)
     dd_state = state.setdefault("_dd", {})
+    basis_info = state.setdefault("_dd_basis", {})
+
+    # --- Basis bestimmen ---
+    basis_quelle = "config (Fallback)"
+    if conf.get("basis_auto", True):
+        roh, fehler = fetch(conf.get("basis_url",
+                                     "https://www.mbb.com/ir/aktie.html"))
+        wert = None
+        if roh and not fehler:
+            m = re.search(r"mittelbar zu\s*([\d.,]+)\s*%", html_zu_text(roh))
+            if m:
+                wert = parse_zahl_de(m.group(1))
+        if wert is not None:
+            if basis_info.get("wert") != wert:
+                if "wert" in basis_info:
+                    # Website wurde aktualisiert -> alles Bisherige gilt
+                    # als verrechnet, Rechnung beginnt neu
+                    for e in dd_state.values():
+                        e["status"] = "in_basis"
+                basis_info["wert"] = wert
+                basis_info["seit"] = date.today().isoformat()
+            basis_quelle = "Website (automatisch)"
+    basis = float(basis_info.get("wert", conf.get("basis_prozent", 71.0)))
+    basis_seit = basis_info.get("seit") or str(conf.get("basis_stand", ""))
+    try:
+        basis_stand = date.fromisoformat(basis_seit) if basis_seit else None
+    except ValueError:
+        basis_stand = None
+
+    # --- Dealings erfassen ---
     neu_urls = []
     for n in news.get("relevant", []):
         if n["kategorie"] != "directors-dealings":
@@ -392,6 +430,7 @@ def dd_rechner(config, state, news, fetch=hole_seite):
                 eintrag["status"] = "nicht_ermittelbar"
             neu_urls.append(n["url"])
         dd_state[n["url"]] = eintrag
+
     beitraege = [{**e, "url": u} for u, e in dd_state.items()
                  if e.get("status") == "erfasst"]
     offen = [{**e, "url": u} for u, e in dd_state.items()
@@ -399,8 +438,8 @@ def dd_rechner(config, state, news, fetch=hole_seite):
     delta = sum(e["stueck"] * (1 if e["richtung"] == "kauf" else -1)
                 for e in beitraege)
     gesamt = int(conf.get("aktien_gesamt", 5436169))
-    basis = float(conf.get("basis_prozent", 71.0))
-    return {"basis": basis, "basis_stand": str(conf.get("basis_stand", "")),
+    return {"basis": basis, "basis_stand": basis_seit,
+            "basis_quelle": basis_quelle,
             "gesamt": gesamt, "delta": delta,
             "vorschlag": basis + delta / gesamt * 100,
             "beitraege": beitraege, "offen": offen,
@@ -496,8 +535,8 @@ def build_mail_text(due_checks, due_termine, abweichungen, extern_abw,
         lines.append(f"  Basis lt. Website: {de_zahl(dd['basis'])} % "
                      f"-> Vorschlag NEU: ca. {de_zahl(dd['vorschlag'])} % "
                      f"(Delta {dd['delta']:+d} von {de_zahl(dd['gesamt'], 0)} Aktien)")
-        lines.append("  Nach Übernahme auf der Website: basis_prozent und "
-                     "basis_stand in config.yaml aktualisieren.")
+        lines.append("  Nach Aktualisierung des Anteils auf der Website "
+                     "setzt sich die Rechnung automatisch zurück.")
     if abweichungen:
         lines += ["", "ACHTUNG – der Website-Abgleich hat Abweichungen gefunden",
                   "(erwartete Angaben stehen nicht mehr auf der mbb.com-Seite):"]
@@ -710,7 +749,7 @@ def render_dd(dd, stripe):
               f'<span class="feld-wert">{de_zahl(dd["gesamt"], 0)}</span></div>')
     for b in sorted(dd["beitraege"], key=lambda x: x.get("datum") or "",
                     reverse=True):
-        vz = "+" if b["richtung"] == "kauf" else "−"
+        vz = "+" if b["richtung"] == "kauf" else "-"
         neu_mark = (' <span class="badge badge-over">NEU</span>'
                     if ist_neu(b) else "")
         zeilen += (f'<div class="feld"><span class="feld-label">'
@@ -725,11 +764,11 @@ def render_dd(dd, stripe):
                        f'ermittelbar – <a href="{o["url"]}" target="_blank">'
                        f'Meldung öffnen</a> ({o.get("datum") or "–"}){neu_mark}</p>')
     if dd["delta"] != 0:
-        vz = "+" if dd["delta"] > 0 else "−"
+        vz = "+" if dd["delta"] > 0 else "-"
         vorschlag = (f'<p class="dd-vorschlag"><em>Vorschlag: {basis_txt} % '
                      f'{vz} {de_zahl(abs(dd["delta"]), 0)} / '
                      f'{de_zahl(dd["gesamt"], 0)} Aktien '
-                     f'≈ <strong>{de_zahl(dd["vorschlag"])} %</strong> '
+                     f'ca. <strong>{de_zahl(dd["vorschlag"])} %</strong> '
                      f'(rechnerisch – kein amtlicher Wert)</em></p>')
     else:
         vorschlag = (f'<p class="dd-vorschlag"><em>Kein neuer Vorschlag – '
@@ -750,7 +789,7 @@ def render_dd(dd, stripe):
         {offen_html}
         {vorschlag}
         {berichte}
-        <div class="card-fuss">Nach Übernahme auf der Website: basis_prozent + basis_stand in config.yaml aktualisieren.</div>
+        <div class="card-fuss">Die Basis wird automatisch von mbb.com gelesen – nach einer Aktualisierung der Website setzt sich die Rechnung von selbst zurück.</div>
       </article>"""
 
 
