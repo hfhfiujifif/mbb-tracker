@@ -76,8 +76,9 @@ news_waechter:
 # Nach Übernahme auf der Website: basis_prozent + basis_stand aktualisieren.
 dd_rechner:
   aktiv: true
-  basis_prozent: 71.0        # Anteil lt. mbb.com (mittelbar, Gründer gesamt)
-  basis_stand: 2026-07-21    # Dealings bis einschl. dieses Datums gelten als enthalten
+  basis_auto: true           # Basis wird automatisch von der Website gelesen
+  basis_url: "https://www.mbb.com/ir/aktie.html"
+  basis_prozent: 71.0        # nur Fallback, falls Auto-Auslesen fehlschlägt
   aktien_gesamt: 5436169
   personen:                  # Meldepflichtige, die zum Gründeranteil zählen
     - "MBB Capital Management"
