@@ -55,10 +55,16 @@ news_waechter:
     - name: "EQS – MBB SE"
       url: "https://www.eqs-news.com/de/company/mbb-se/news/5b80158b-ea7c-11e8-902f-2c44fd856d8c"
     - name: "EQS – Friedrich Vorwerk"
+      kategorien: []                       # Kategorien hier ignorieren
+      stichwoerter: ["MBB", "Nesemeier", "Freimuth"]   # nur MBB-Bezug melden
       url: "https://www.eqs-news.com/de/company/friedrich-vorwerk-group-se/news/e301606d-77ad-1015-a120-234e05d60f5f"
     - name: "EQS – Delignit"
+      kategorien: []                       # Kategorien hier ignorieren
+      stichwoerter: ["MBB", "Nesemeier", "Freimuth"]   # nur MBB-Bezug melden
       url: "https://www.eqs-news.com/de/company/delignit-ag/news/5b82f122-ea7c-11e8-902f-2c44fd856d8c"
     - name: "EQS – Aumann"
+      kategorien: []                       # Kategorien hier ignorieren
+      stichwoerter: ["MBB", "Nesemeier", "Freimuth"]   # nur MBB-Bezug melden
       url: "https://www.eqs-news.com/de/company/aumann-ag/news/5c3b20ea-ea7c-11e8-902f-2c44fd856d8c"
   kategorien:
     - directors-dealings
@@ -82,6 +88,7 @@ news_waechter:
 # Nach Übernahme auf der Website: basis_prozent + basis_stand aktualisieren.
 dd_rechner:
   aktiv: true
+  quelle: "EQS – MBB SE"     # nur Dealings dieser Quelle betreffen den MBB-Anteil
   basis_auto: true           # Basis wird automatisch von der Website gelesen
   basis_url: "https://www.mbb.com/ir/aktie.html"
   basis_prozent: 71.0        # nur Fallback, falls Auto-Auslesen fehlschlägt
