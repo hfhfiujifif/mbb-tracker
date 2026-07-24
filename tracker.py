@@ -245,6 +245,9 @@ NEWS_DATUM_RE = re.compile(
 
 def saeubere_titel(t):
     t = re.sub(r"<[^>]+>", " ", t)
+    # Icon-/Steuerzeichen entfernen (Private-Use-Area, Zero-Width u. ä.),
+    # die als leere Rechtecke ("Tofu") dargestellt würden
+    t = re.sub(r"[\ue000-\uf8ff\u200b-\u200f\ufeff\ufffc\ufffd]", "", t)
     t = normalisiere(t).strip()
     t = re.sub(r"^\d{1,2}:\d{2}\s+", "", t)   # führende Uhrzeit entfernen
     return t[:220]
