@@ -638,6 +638,20 @@ def render_referenzen(refs):
     return f'<p class="refs">Vergleichsquellen (manuell): {links}</p>'
 
 
+NEWS_ERKLAERUNG = """  <h2>Meldungs-Wächter (EQS)</h2>
+  <p class="news-erklaerung">So funktioniert dieser Abschnitt: Der Tracker ruft
+  bei jedem Lauf die EQS-News-Übersicht der MBB SE ab und merkt sich alle
+  relevanten Meldungen (Kategorien wie Directors&rsquo; Dealings, Stimmrechte,
+  Ad-hoc sowie Stichwörter wie Nesemeier, Freimuth, Aktienrückkauf oder
+  Töchternamen). Erscheint eine neue relevante Meldung – z. B. ein Kauf oder
+  Verkauf der Gründer über ihre Holdings oder eine Änderung der MBB-Anteile an
+  den Töchtern –, wird sofort eine E-Mail verschickt und die Meldung hier
+  7 Tage als NEU markiert. Der Wächter ändert keine Werte selbst: Ein Mensch
+  liest die Meldung und passt bei Bedarf die Website und die Sollwerte in
+  config.yaml an. Beim allerersten Lauf werden vorhandene Meldungen nur als
+  Ausgangsbestand gespeichert, ohne Alarm.</p>"""
+
+
 def render_news(news):
     if news is None:
         return '  <p class="news-leer">Der Meldungs-Wächter ist abgeschaltet (news_waechter.aktiv in config.yaml).</p>'
@@ -807,10 +821,11 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     n_alarm = sum(1 for c in checks
                   if (c["web"] and c["web"]["status"] == "abweichung") or
                      (c["ext"] and c["ext"]["status"] == "abweichung"))
+    mbb_key = "MBB" if "MBB" in gruppen_cards else next(iter(gruppen_cards), "MBB")
     if dd is not None:
-        mbb_key = "MBB" if "MBB" in gruppen_cards else next(iter(gruppen_cards))
         gruppen_cards[mbb_key] += render_dd(
             dd, farben.get(mbb_key, "linear-gradient(to bottom, #1a1a1a, #1a1a1a)"))
+    news_block = NEWS_ERKLAERUNG + "\n" + render_news(news) + "\n"
 
     pruefpunkte_html = ""
     for gname, inhalt in gruppen_cards.items():
@@ -821,8 +836,9 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
             f'  <div class="gruppe"><span class="gruppe-balken" '
             f'style="background:{gfarbe}"></span>{gname}</div>\n'
             f'  <div class="grid">{inhalt}\n  </div>\n')
+        if gname == mbb_key:
+            pruefpunkte_html += news_block
 
-    news_html = render_news(news)
 
     info = []
     info.append("Website-Abgleich aktiv" if abgleich_aktiv
@@ -960,19 +976,7 @@ def render_dashboard(checks, termine, vorlauf, abgleich_aktiv, extern_aktiv, gru
     </tbody>
   </table>
 
-  <h2>Meldungs-Wächter (EQS)</h2>
-  <p class="news-erklaerung">So funktioniert dieser Abschnitt: Der Tracker ruft
-  bei jedem Lauf die EQS-News-Übersicht der MBB SE ab und merkt sich alle
-  relevanten Meldungen (Kategorien wie Directors&rsquo; Dealings, Stimmrechte,
-  Ad-hoc sowie Stichwörter wie Nesemeier, Freimuth, Aktienrückkauf oder
-  Töchternamen). Erscheint eine neue relevante Meldung – z. B. ein Kauf oder
-  Verkauf der Gründer über ihre Holdings oder eine Änderung der MBB-Anteile an
-  den Töchtern –, wird sofort eine E-Mail verschickt und die Meldung hier
-  7 Tage als NEU markiert. Der Wächter ändert keine Werte selbst: Ein Mensch
-  liest die Meldung und passt bei Bedarf die Website und die Sollwerte in
-  config.yaml an. Beim allerersten Lauf werden vorhandene Meldungen nur als
-  Ausgangsbestand gespeichert, ohne Alarm.</p>
-{news_html}
+
 
   <footer>Quartalsweise Punkte werden zum jeweils nächsten Finanzkalender-Termin
     nach der letzten Bestätigung fällig; jährliche Punkte 365 Tage nach der
