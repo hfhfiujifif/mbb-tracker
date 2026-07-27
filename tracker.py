@@ -696,7 +696,10 @@ NEWS_ERKLAERUNG = """  <h2>Meldungs-Checker (EQS)</h2>
   7 Tage als NEU markiert. Der Wächter ändert keine Werte selbst: Ein Mensch
   liest die Meldung und passt bei Bedarf die Website und die Sollwerte in
   config.yaml an. Beim allerersten Lauf werden vorhandene Meldungen nur als
-  Ausgangsbestand gespeichert, ohne Alarm.</p>"""
+  Ausgangsbestand gespeichert, ohne Alarm. &bdquo;Bekannt&ldquo; bedeutet
+  dabei nur, dass der Tracker die Meldung bereits erfasst hat &ndash; es ist
+  keine Aussage darüber, ob sie von einem Menschen geprüft oder die Website
+  angepasst wurde; den inhaltlichen Zustand zeigen die Prüfpunkt-Kacheln.</p>"""
 
 
 def render_news(news):
@@ -711,7 +714,7 @@ def render_news(news):
     for n in sorted(news.get("relevant", []), key=sortdatum, reverse=True)[:12]:
         ist_neu = n["url"] in neu_urls
         badge = ('<span class="badge badge-over">NEU</span>' if ist_neu
-                 else '<span class="badge badge-past">gesehen</span>')
+                 else '<span class="badge badge-past">bekannt</span>')
         datum = n.get("datum") or "–"
         zeilen += f"""
         <tr>
