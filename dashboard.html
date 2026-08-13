@@ -108,13 +108,13 @@
   <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 12.08.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 13.08.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
   </div>
 </header>
 <div id="stale-warnung" style="display:none;background:#fbe6e7;color:#b3121b;padding:10px 36px;font-size:14px;font-weight:500;"></div>
 <main>
   <div class="summary">
-    <div class="sum over"><div class="num">0</div><div class="lbl">Abweichungen</div></div>
+    <div class="sum over"><div class="num">1</div><div class="lbl">Abweichungen</div></div>
     <div class="sum over"><div class="num">0</div><div class="lbl">überfällig</div></div>
     <div class="sum due"><div class="num">13</div><div class="lbl">fällig</div></div>
     <div class="sum ok"><div class="num">6</div><div class="lbl">aktuell</div></div>
@@ -123,6 +123,25 @@
   <h2>Prüfpunkte</h2>
   <div class="gruppe"><span class="gruppe-balken" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%)"></span>MBB</div>
   <div class="grid">
+      <article class="card status-over" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%) no-repeat left top / 5px 100%, #ffffff">
+        <div class="card-kopf">
+          <h3>Standorte (alle Gesellschaften)</h3>
+          <span class="badge badge-due">fällig</span>
+        </div>
+        <a class="card-url" href="https://www.mbb.com/ueber-uns/standorte.html" target="_blank">mbb.com/ueber-uns/standorte.html</a>
+        <div class="felder"><div class="feld"><span class="feld-label">MBB SE</span><span class="feld-wert">Kurfürstendamm 188, 10707 Berlin</span></div><div class="feld"><span class="feld-label">Rund 50 Standorte</span><span class="feld-wert">DE, PL, GR, NL, China, USA</span></div><div class="feld"><span class="feld-label">Prüfen</span><span class="feld-wert">Zu-/Abgänge nach Übernahmen oder Umzügen</span></div></div>
+        <p class="fundstelle">Zu ändern: Standort-Kacheln – Kachel der betroffenen Gesellschaft anpassen – <a href="https://www.mbb.com/ueber-uns/standorte.html" target="_blank">Seite öffnen</a></p>
+        <p class="web web-alarm">Abweichung – nicht mehr gefunden: „Börstelstraße 113“</p>
+        
+        
+        
+        <div class="card-meta">
+          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
+          <div><span class="meta-label">Zuletzt bestätigt</span>20.07.2026</div>
+          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
+        </div>
+        <div class="card-fuss">Bestätigen: <code>standorte</code></div>
+      </article>
       <article class="card status-due" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%) no-repeat left top / 5px 100%, #ffffff">
         <div class="card-kopf">
           <h3>Aktionärsstruktur</h3>
@@ -237,25 +256,6 @@
         </div>
         <div class="card-fuss">Bestätigen: <code>ursprung-timeline</code></div>
       </article>
-      <article class="card status-due" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%) no-repeat left top / 5px 100%, #ffffff">
-        <div class="card-kopf">
-          <h3>Standorte (alle Gesellschaften)</h3>
-          <span class="badge badge-due">fällig</span>
-        </div>
-        <a class="card-url" href="https://www.mbb.com/ueber-uns/standorte.html" target="_blank">mbb.com/ueber-uns/standorte.html</a>
-        <div class="felder"><div class="feld"><span class="feld-label">MBB SE</span><span class="feld-wert">Kurfürstendamm 188, 10707 Berlin</span></div><div class="feld"><span class="feld-label">Rund 50 Standorte</span><span class="feld-wert">DE, PL, GR, NL, China, USA</span></div><div class="feld"><span class="feld-label">Prüfen</span><span class="feld-wert">Zu-/Abgänge nach Übernahmen oder Umzügen</span></div></div>
-        <p class="fundstelle">Zu ändern: Standort-Kacheln – Kachel der betroffenen Gesellschaft anpassen – <a href="https://www.mbb.com/ueber-uns/standorte.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
-        
-        
-        
-        <div class="card-meta">
-          <div><span class="meta-label">Rhythmus</span>quartalsweise · Finanzkalender</div>
-          <div><span class="meta-label">Zuletzt bestätigt</span>20.07.2026</div>
-          <div><span class="meta-label">Fällig am</span><strong>13.08.2026</strong></div>
-        </div>
-        <div class="card-fuss">Bestätigen: <code>standorte</code></div>
-      </article>
       <article class="card status-ok" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%) no-repeat left top / 5px 100%, #ffffff">
         <div class="card-kopf">
           <h3>Anteil Gründer – Rechner (Directors&rsquo; Dealings)</h3>
@@ -286,6 +286,12 @@
   angepasst wurde; den inhaltlichen Zustand zeigen die Prüfpunkt-Kacheln.</p>
   <table>
     <tbody>
+        <tr>
+          <td class="t-datum">2026-08-13</td>
+          <td>corporate</td>
+          <td><a href="https://www.eqs-news.com/de/news/corporate/mbb-se-uebergibt-ct-formpolster-an-nexeras/43f5c87e-c1ad-4ce3-ab64-f7198b29e0bc_de" target="_blank">Corporate MBB SE Corporate MBB SE übergibt CT Formpolster an Nexeras</a></td>
+          <td class="t-status"><span class="badge badge-over">NEU</span></td>
+        </tr>
         <tr>
           <td class="t-datum">2026-07-22</td>
           <td>ad-hoc</td>
@@ -563,7 +569,7 @@
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
         <div class="felder"><div class="feld"><span class="feld-label">MBB Anteil</span><span class="feld-wert">100 %</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle, Zeile 'MBB Anteil' (inkl. Sternchen-Fußnote) – <a href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        <p class="web web-warn">Website-Abgleich: Seite nicht erreichbar</p>
         
         
         
@@ -582,7 +588,7 @@
         <a class="card-url" href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">mbb.com/unsere-toechter/ct-formpolster.html</a>
         <div class="felder"><div class="feld"><span class="feld-label">Umsatz 2025</span><span class="feld-wert">21 Mio. €</span></div><div class="feld"><span class="feld-label">Mitarbeiter 2025</span><span class="feld-wert">124</span></div><div class="feld"><span class="feld-label">MBB seit</span><span class="feld-wert">2010</span></div><div class="feld"><span class="feld-label">Dazu</span><span class="feld-wert">Tätigkeit, Märkte, Standorte prüfen</span></div></div>
         <p class="fundstelle">Zu ändern: Eckdaten-Tabelle: Tätigkeit, Märkte, Standorte, Umsatz, Mitarbeiter, 'MBB seit' – <a href="https://www.mbb.com/unsere-toechter/ct-formpolster.html" target="_blank">Seite öffnen</a></p>
-        <p class="web web-ok">Website-Abgleich: erwartete Werte gefunden</p>
+        <p class="web web-warn">Website-Abgleich: Seite nicht erreichbar</p>
         
         
         
@@ -628,7 +634,7 @@
 </main>
 <script>
 (function() {
-  var stand = "2026-08-12";
+  var stand = "2026-08-13";
   var diff = Math.floor((Date.now() - new Date(stand + "T12:00:00")) / 86400000);
   if (diff >= 2) {
     var el = document.getElementById("stale-warnung");
