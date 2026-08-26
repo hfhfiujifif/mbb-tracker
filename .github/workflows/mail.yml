@@ -1,0 +1,20 @@
+name: Mail senden
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: 587
+          secure: false
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Testmail
+          to: office@mbb.com
+          from: Kontakt <kontakt@mbb.com>
+          body: Test.
