@@ -18,9 +18,7 @@
 
 email:
   empfaenger:                             # ein oder mehrere Empfänger
-    - "mak@mbb.com"
-    - "peb@mbb.com"
-    - "tte@mbb.com"
+    - "office@mbb.com"
   absender: "office@mbb.com"
   betreff_prefix: "[Website-Check]"
   # SMTP-Zugangsdaten als Umgebungsvariablen: SMTP_HOST, SMTP_PORT,
