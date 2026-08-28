@@ -605,7 +605,7 @@ def send_mail(config, text, anzahl):
     msg["From"] = mail_cfg["absender"]
     msg["To"] = ", ".join(empfaenger)
     port = int(os.environ.get("SMTP_PORT", 587))
-    with smtplib.SMTP(host, port) as s:
+    with smtplib.SMTP(host, port, timeout=30) as s:
         s.starttls()
         user, pw = os.environ.get("SMTP_USER"), os.environ.get("SMTP_PASS")
         if user and pw:
