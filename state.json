@@ -136,6 +136,22 @@
       "quelle": "EQS – Delignit",
       "erstmals": "2026-08-28",
       "baseline": true
+    },
+    "https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/dc7726d9-ffe4-4617-b252-ba1ee21938e2_de": {
+      "titel": "Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf",
+      "kategorie": "directors-dealings",
+      "datum": "2026-10-12",
+      "quelle": "EQS – MBB SE",
+      "erstmals": "2026-10-12",
+      "baseline": false
+    },
+    "https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/c97dd2e9-99e8-4479-8e12-c7e636f91980_de": {
+      "titel": "Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf",
+      "kategorie": "directors-dealings",
+      "datum": "2026-10-12",
+      "quelle": "EQS – MBB SE",
+      "erstmals": "2026-10-12",
+      "baseline": false
     }
   },
   "_dd": {
@@ -144,6 +160,22 @@
       "datum": "2026-07-13",
       "erstmals": "2026-08-28",
       "status": "in_basis"
+    },
+    "https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/dc7726d9-ffe4-4617-b252-ba1ee21938e2_de": {
+      "titel": "Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf",
+      "datum": "2026-10-12",
+      "erstmals": "2026-10-12",
+      "status": "erfasst",
+      "stueck": 1000,
+      "richtung": "kauf"
+    },
+    "https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/c97dd2e9-99e8-4479-8e12-c7e636f91980_de": {
+      "titel": "Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf",
+      "datum": "2026-10-12",
+      "erstmals": "2026-10-12",
+      "status": "erfasst",
+      "stueck": 750,
+      "richtung": "kauf"
     }
   },
   "_dd_basis": {

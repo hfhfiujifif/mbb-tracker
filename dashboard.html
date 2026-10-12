@@ -108,7 +108,7 @@
   <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 11.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 12.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
   </div>
 </header>
 <div id="stale-warnung" style="display:none;background:#fbe6e7;color:#b3121b;padding:10px 36px;font-size:14px;font-weight:500;"></div>
@@ -259,12 +259,12 @@
       <article class="card status-ok" style="background:linear-gradient(to bottom, #1a1a1a 50%, #1a1a1a 50%) no-repeat left top / 5px 100%, #ffffff">
         <div class="card-kopf">
           <h3>Anteil Gründer – Rechner (Directors&rsquo; Dealings)</h3>
-          <span class="badge badge-ok">aktuell</span>
+          <span class="badge badge-over">NEU</span>
         </div>
         <p class="card-url">Rechnet neue EQS-Dealings der Gründer-Holdings auf den Website-Anteil hoch – NEU-Markierung 7 Tage</p>
-        <div class="felder"><div class="feld"><span class="feld-label">Basis lt. Website (mittelbar, Stand 2026-08-28)</span><span class="feld-wert">71,00 %</span></div><div class="feld"><span class="feld-label">Aktien gesamt</span><span class="feld-wert">5.436.169</span></div></div>
+        <div class="felder"><div class="feld"><span class="feld-label">Basis lt. Website (mittelbar, Stand 2026-08-28)</span><span class="feld-wert">71,00 %</span></div><div class="feld"><span class="feld-label">Aktien gesamt</span><span class="feld-wert">5.436.169</span></div><div class="feld"><span class="feld-label">2026-10-12 · Kauf · <a href="https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/dc7726d9-ffe4-4617-b252-ba1ee21938e2_de" target="_blank">Meldung</a> <span class="badge badge-over">NEU</span></span><span class="feld-wert">+1.000 Aktien</span></div><div class="feld"><span class="feld-label">2026-10-12 · Kauf · <a href="https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/c97dd2e9-99e8-4479-8e12-c7e636f91980_de" target="_blank">Meldung</a> <span class="badge badge-over">NEU</span></span><span class="feld-wert">+750 Aktien</span></div></div>
         
-        <p class="dd-vorschlag"><em>Kein neuer Vorschlag – Basis unverändert 71,00 %</em></p>
+        <p class="dd-vorschlag"><em>Vorschlag: 71,00 % + 1.750 / 5.436.169 Aktien ca. <strong>71,03 %</strong> (rechnerisch – kein amtlicher Wert)</em></p>
         <p class="refs">Berichte & Free Float (manuell): <a href="https://www.eqs-news.com/de/company/mbb-se/berichte/5b80158b-ea7c-11e8-902f-2c44fd856d8c" target="_blank">EQS – Berichte MBB SE</a></p>
         <div class="card-fuss">Die Basis wird automatisch von mbb.com gelesen – nach einer Aktualisierung der Website setzt sich die Rechnung von selbst zurück.</div>
       </article>
@@ -286,6 +286,18 @@
   angepasst wurde; den inhaltlichen Zustand zeigen die Prüfpunkt-Kacheln.</p>
   <table>
     <tbody>
+        <tr>
+          <td class="t-datum">2026-10-12</td>
+          <td>directors-dealings</td>
+          <td><a href="https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/dc7726d9-ffe4-4617-b252-ba1ee21938e2_de" target="_blank">Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf</a></td>
+          <td class="t-status"><span class="badge badge-over">NEU</span></td>
+        </tr>
+        <tr>
+          <td class="t-datum">2026-10-12</td>
+          <td>directors-dealings</td>
+          <td><a href="https://www.eqs-news.com/de/news/directors-dealings/mbb-se-mbb-capital-management-gmbh-kauf/c97dd2e9-99e8-4479-8e12-c7e636f91980_de" target="_blank">Directors’ Dealings MBB SE Directors’ Dealings MBB SE: MBB Capital Management GmbH , Kauf</a></td>
+          <td class="t-status"><span class="badge badge-over">NEU</span></td>
+        </tr>
         <tr>
           <td class="t-datum">2026-08-13</td>
           <td>corporate</td>
@@ -628,7 +640,7 @@
 </main>
 <script>
 (function() {
-  var stand = "2026-10-11";
+  var stand = "2026-10-12";
   var diff = Math.floor((Date.now() - new Date(stand + "T12:00:00")) / 86400000);
   if (diff >= 2) {
     var el = document.getElementById("stale-warnung");
