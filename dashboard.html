@@ -108,7 +108,7 @@
   <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 20.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 21.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
   </div>
 </header>
 <div id="stale-warnung" style="display:none;background:#fbe6e7;color:#b3121b;padding:10px 36px;font-size:14px;font-weight:500;"></div>
@@ -284,8 +284,15 @@
   dabei nur, dass der Tracker die Meldung bereits erfasst hat &ndash; es ist
   keine Aussage darüber, ob sie von einem Menschen geprüft oder die Website
   angepasst wurde; den inhaltlichen Zustand zeigen die Prüfpunkt-Kacheln.</p>
+  <p class="web web-warn">Quelle „EQS – Aumann" nicht erreichbar – nächster Versuch beim nächsten Lauf.</p>
   <table>
     <tbody>
+        <tr>
+          <td class="t-datum">2026-10-21</td>
+          <td>ad-hoc</td>
+          <td><a href="https://www.eqs-news.com/de/news/ad-hoc/mbb-se-steigert-bereinigtes-ebitda-im-dritten-quartal-um-25-auf-84-mio-e-und-erhoeht-ergebnisprognose-erneut-auf-eine-bereinigte-ebitda-margenspanne-von-22-24/32202d65-d607-4aaf-9066-a06f66525afa_de" target="_blank">Ad-hoc MBB SE Ad-hoc MBB SE steigert bereinigtes EBITDA im dritten Quartal um 25 % auf 84 Mio. € und erhöht Ergebnisprognose erneut auf eine bereinigte EBITDA-Margenspanne von 22-24 %</a></td>
+          <td class="t-status"><span class="badge badge-over">NEU</span></td>
+        </tr>
         <tr>
           <td class="t-datum">2026-10-12</td>
           <td>directors-dealings</td>
@@ -350,12 +357,6 @@
           <td class="t-datum">2026-03-04</td>
           <td>stimmrechtsanteile</td>
           <td><a href="https://www.eqs-news.com/de/news/stimmrechtsanteile/mbb-se-veroeffentlichung-ueber-erwerb-oder-veraeusserung-eigener-aktien-nach-c2a7-40-abs-1-satz-2-wphg/47f16bab-f63a-4eb5-868b-4c671c2682be_de" target="_blank">Stimmrechtsanteile MBB SE Stimmrechtsanteile</a></td>
-          <td class="t-status"><span class="badge badge-past">bekannt</span></td>
-        </tr>
-        <tr>
-          <td class="t-datum">2023-07-14</td>
-          <td>directors-dealings</td>
-          <td><a href="https://www.eqs-news.com/de/news/directors-dealings/delignit-ag-gert-maria-freimuth-kauf/81b27309-5559-43fb-bec3-79f23423b61b_de" target="_blank">Directors’ Dealings Delignit AG Directors’ Dealings Delignit AG: Gert-Maria Freimuth, Kauf</a></td>
           <td class="t-status"><span class="badge badge-past">bekannt</span></td>
         </tr>
     </tbody>
@@ -640,7 +641,7 @@
 </main>
 <script>
 (function() {
-  var stand = "2026-10-20";
+  var stand = "2026-10-21";
   var diff = Math.floor((Date.now() - new Date(stand + "T12:00:00")) / 86400000);
   if (diff >= 2) {
     var el = document.getElementById("stale-warnung");
