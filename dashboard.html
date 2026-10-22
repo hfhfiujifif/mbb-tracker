@@ -108,7 +108,7 @@
   <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Logo_MBB_SE.svg/1280px-Logo_MBB_SE.svg.png" alt="MBB SE">
   <div>
     <h1>Website-Tracker</h1>
-    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 21.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
+    <p>Statusübersicht der zu pflegenden Inhalte auf mbb.com · Stand: 22.10.2026 · Erinnerung ab 14 Tagen vor Fälligkeit · Website-Abgleich aktiv</p>
   </div>
 </header>
 <div id="stale-warnung" style="display:none;background:#fbe6e7;color:#b3121b;padding:10px 36px;font-size:14px;font-weight:500;"></div>
@@ -284,14 +284,13 @@
   dabei nur, dass der Tracker die Meldung bereits erfasst hat &ndash; es ist
   keine Aussage darüber, ob sie von einem Menschen geprüft oder die Website
   angepasst wurde; den inhaltlichen Zustand zeigen die Prüfpunkt-Kacheln.</p>
-  <p class="web web-warn">Quelle „EQS – Aumann" nicht erreichbar – nächster Versuch beim nächsten Lauf.</p>
   <table>
     <tbody>
         <tr>
           <td class="t-datum">2026-10-21</td>
           <td>ad-hoc</td>
           <td><a href="https://www.eqs-news.com/de/news/ad-hoc/mbb-se-steigert-bereinigtes-ebitda-im-dritten-quartal-um-25-auf-84-mio-e-und-erhoeht-ergebnisprognose-erneut-auf-eine-bereinigte-ebitda-margenspanne-von-22-24/32202d65-d607-4aaf-9066-a06f66525afa_de" target="_blank">Ad-hoc MBB SE Ad-hoc MBB SE steigert bereinigtes EBITDA im dritten Quartal um 25 % auf 84 Mio. € und erhöht Ergebnisprognose erneut auf eine bereinigte EBITDA-Margenspanne von 22-24 %</a></td>
-          <td class="t-status"><span class="badge badge-over">NEU</span></td>
+          <td class="t-status"><span class="badge badge-past">bekannt</span></td>
         </tr>
         <tr>
           <td class="t-datum">2026-10-12</td>
@@ -641,7 +640,7 @@
 </main>
 <script>
 (function() {
-  var stand = "2026-10-21";
+  var stand = "2026-10-22";
   var diff = Math.floor((Date.now() - new Date(stand + "T12:00:00")) / 86400000);
   if (diff >= 2) {
     var el = document.getElementById("stale-warnung");
